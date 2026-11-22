@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
 
         if (isNetworkAvailable()) {
             usingOffline = false;
-            splashStatus.setText("Connecting to Ludo Royal...");
+            splashStatus.setText("Connecting to LudoWars...");
             webView.loadUrl(targetUrl);
         } else {
             switchToOffline();
@@ -113,7 +113,7 @@ public class MainActivity extends Activity {
         box.setPadding(pad, pad, pad, pad);
 
         TextView title = new TextView(this);
-        title.setText("LUDO ROYAL");
+        title.setText("LUDO WARS");
         title.setTextColor(Color.parseColor("#FFD84D"));
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34);
         title.setTypeface(Typeface.DEFAULT_BOLD);
