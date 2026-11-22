@@ -2290,7 +2290,7 @@
   .board-callout {
     position: absolute;
     left: var(--duel-x, 50%);
-    top: calc(var(--duel-y, 50%) - 19%);
+    top: max(22%, calc(var(--duel-y, 58%) - 26%));
     transform: translate(-50%, -50%) scale(0.6);
     z-index: 13;
     font-size: clamp(16px, 2.6vw, 28px);
@@ -2626,6 +2626,11 @@
     .player-name { font-size: 11px; max-width: 82px !important; }
     .status-dot { width: 6px; height: 6px; }
     .pip-row { gap: 3px; padding: 2px 5px; }
+    .board-duel-hud { top: 1.8%; width: 95%; padding: 4px 7px; gap: 6px; }
+    .cinema-fighter-label { font-size: 9px; letter-spacing: 0.3px; }
+    .steel-hp-frame { height: 10px; }
+    .cinema-clock-box { width: 42px; height: 34px; }
+    .cinema-clock-num { font-size: 13px; }
   }
 </style>
 </head>
@@ -5231,9 +5236,9 @@
   async function playKingKillAnimation(attackerIdx, attackerTokenIdx, victims, targetStep, gen) {
     clearDuelFX();
     const [cx, cy] = stepToBoardPercent(attackerIdx, attackerTokenIdx, targetStep);
-    // Clamp fight center inside board so both large armored Kings stay 100% inside the board frame
+    // Clamp fight center inside board so BOTH Kings' faces, crowns & bodies ALWAYS stay well below the top HP HUD!
     const fightX = Math.max(27, Math.min(73, cx));
-    const fightY = Math.max(36, Math.min(82, cy));
+    const fightY = Math.max(54, Math.min(86, cy));
 
     const leftStandX = fightX - 13.5;
     const rightStandX = fightX + 13.5;
