@@ -699,7 +699,7 @@ const server = http.createServer(async (req, res) => {
             advanceTurn(m);
           }
           const hopMs = curStep === -1 ? 260 : roll * 170;
-          const killMs = captured.length > 0 ? 5900 : 0;
+          const killMs = captured.length > 0 ? 6400 : 0;
           animDelayMs = hopMs + killMs + 260;
           scheduleTurnTimeout(room, animDelayMs);
         }

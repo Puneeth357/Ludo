@@ -5213,9 +5213,9 @@
   async function playKingKillAnimation(attackerIdx, attackerTokenIdx, victims, targetStep, gen) {
     clearDuelFX();
     const [cx, cy] = stepToBoardPercent(attackerIdx, attackerTokenIdx, targetStep);
-    // Clamp fight center so BOTH Kings' faces, crowns & the high sword-lift ALWAYS stay cleanly below the top HP HUD!
-    const fightX = Math.max(27, Math.min(73, cx));
-    const fightY = Math.max(58, Math.min(86, cy));
+    // Clamp fight center so BOTH Kings & the FULL-UP perpendicular sword lift ALWAYS stay cleanly below the top HP HUD!
+    const fightX = Math.max(28, Math.min(72, cx));
+    const fightY = Math.max(66, Math.min(88, cy));
 
     const mainVictim = victims[0];
     const defIdx = mainVictim.p;
@@ -5360,7 +5360,7 @@
         },
       },
       {
-        at: 1.84, fired: false, fn: () => {
+        at: 1.72, fired: false, fn: () => {
           DuelVFX.addSlashPct(fightX, fightY - 8, { angle: -0.65, lenScale: 0.38, edge: '#ffe055' });
           DuelVFX.addSlashPct(fightX, fightY - 8, { angle: 0.65, lenScale: 0.38, edge: '#ff3038' });
           DuelVFX.addShockwavePct(fightX, fightY - 8, { r1Scale: 0.24, color: '#ffe066', lw: 6 });
@@ -5373,7 +5373,7 @@
         },
       },
       {
-        at: 2.12, fired: false, fn: () => {
+        at: 1.98, fired: false, fn: () => {
           DuelVFX.addSlashPct(fightX, fightY - 5, { angle: 0.55, lenScale: 0.32, edge: '#ffffff' });
           DuelVFX.spawnSparksPct(fightX, fightY - 6, 26, { crimson: false, speedMul: 1.2 });
           SoundFX.bladeClash(150);
@@ -5381,7 +5381,7 @@
         },
       },
       {
-        at: 2.38, fired: false, fn: () => {
+        at: 2.22, fired: false, fn: () => {
           DuelVFX.addShockwavePct(fightX, fightY - 7, { r1Scale: 0.22, color: '#ffffff', lw: 5 });
           DuelVFX.spawnSparksPct(fightX, fightY - 7, 28, { crimson: false, speedMul: 1.3 });
           SoundFX.bladeLock();
@@ -5389,7 +5389,7 @@
         },
       },
       {
-        at: 2.78, fired: false, fn: () => {
+        at: 2.56, fired: false, fn: () => {
           hitFlash(kingA, 220);
           DuelVFX.addSlashPct(fightX - 6, fightY - 6, { angle: 2.35, lenScale: 0.4, thick: 20, edge: '#ff1f2d' });
           DuelVFX.spawnSparksPct(fightX - 6, fightY - 6, 30, { crimson: true, speedMul: 1.15 });
@@ -5401,7 +5401,7 @@
         },
       },
       {
-        at: 3.36, fired: false, fn: () => {
+        at: 3.06, fired: false, fn: () => {
           kingA.classList.add('rage-aura');
           hitFlash(kingD, 180);
           DuelVFX.addSlashPct(fightX + 5, fightY - 9, { angle: -0.45, lenScale: 0.38, thick: 19, edge: '#ffd84d' });
@@ -5413,8 +5413,8 @@
         },
       },
       {
-        at: 3.74, fired: false, fn: () => {
-          hitFlash(kingD, 200);
+        at: 3.38, fired: false, fn: () => {
+          hitFlash(kingD, 180);
           DuelVFX.addSlashPct(fightX + 6, fightY - 4, { angle: 0.38, lenScale: 0.38, thick: 19, edge: '#ff2430' });
           DuelVFX.spawnSparksPct(fightX + 6, fightY - 5, 30, { crimson: true, speedMul: 1.25 });
           DuelVFX.addShockwavePct(fightX + 6, fightY - 5, { r1Scale: 0.2, color: '#ffd84d' });
@@ -5424,12 +5424,12 @@
         },
       },
       {
-        at: 3.98, fired: false, fn: () => {
-          // PIERCE! Winner drives sword through Loser before hoisting him up like a movie!
+        at: 3.68, fired: false, fn: () => {
+          // PIERCE! Winner drives sword up into Loser before hoisting him FULL UP perpendicular!
           flashBoard(false);
-          DuelVFX.addSlashPct(fightX + 4, fightY - 7, { angle: -0.18, lenScale: 0.42, thick: 22, edge: '#ff1f2d', fatal: true });
-          DuelVFX.addShockwavePct(fightX + 5, fightY - 7, { r1Scale: 0.28, color: '#ff1e2b', lw: 7 });
-          DuelVFX.spawnSparksPct(fightX + 6, fightY - 7, 36, { crimson: true, speedMul: 1.3 });
+          DuelVFX.addSlashPct(fightX + 3, fightY - 8, { angle: -0.45, lenScale: 0.42, thick: 22, edge: '#ff1f2d', fatal: true });
+          DuelVFX.addShockwavePct(fightX + 4, fightY - 8, { r1Scale: 0.26, color: '#ff1e2b', lw: 7 });
+          DuelVFX.spawnSparksPct(fightX + 5, fightY - 8, 34, { crimson: true, speedMul: 1.3 });
           SoundFX.knifeSlash();
           triggerBoardShake(true);
           hitFlash(kingD, 260);
@@ -5438,29 +5438,29 @@
         },
       },
       {
-        at: 4.18, fired: false, fn: () => {
-          // PEAK SWORD LIFT! Hoisted high in the air on the blade!
+        at: 4.02, fired: false, fn: () => {
+          // PEAK PERPENDICULAR LIFT + FULL 1.0-SECOND MOVIE HOLD!
           flashBoard(true);
-          DuelVFX.addShockwavePct(fightX + 5, fightY - 19, { r1Scale: 0.34, color: '#ffe46e', lw: 6 });
-          DuelVFX.spawnSparksPct(fightX + 6, fightY - 19, 34, { crimson: true, speedMul: 1.25 });
+          DuelVFX.addShockwavePct(fightX + 4, fightY - 30, { r1Scale: 0.36, color: '#ffe46e', lw: 6 });
+          DuelVFX.spawnSparksPct(fightX + 4, fightY - 30, 36, { crimson: true, speedMul: 1.25 });
           SoundFX.captureBoom();
           triggerBoardShake(true);
           showCallout(victims.length > 1 ? 'DOUBLE EXECUTION!' : 'EXECUTION!', true);
         },
       },
       {
-        at: 4.62, fired: false, fn: () => {
-          // BRUTAL FLING-OFF! Whip the defeated King off the sword!
-          DuelVFX.addSlashPct(fightX + 8, fightY - 15, { angle: 0.52, lenScale: 0.48, thick: 24, edge: '#ffe055', fatal: true });
-          DuelVFX.addSlashPct(fightX + 8, fightY - 15, { angle: -0.42, lenScale: 0.44, thick: 20, edge: '#ff1f2d', fatal: true });
-          DuelVFX.spawnSparksPct(fightX + 9, fightY - 15, 38, { crimson: true, speedMul: 1.45 });
+        at: 5.05, fired: false, fn: () => {
+          // BRUTAL FLING-OFF after full 1-second hold!
+          DuelVFX.addSlashPct(fightX + 8, fightY - 22, { angle: 0.58, lenScale: 0.5, thick: 24, edge: '#ffe055', fatal: true });
+          DuelVFX.addSlashPct(fightX + 8, fightY - 22, { angle: -0.38, lenScale: 0.44, thick: 20, edge: '#ff1f2d', fatal: true });
+          DuelVFX.spawnSparksPct(fightX + 9, fightY - 22, 40, { crimson: true, speedMul: 1.45 });
           SoundFX.bladeClash(380);
           triggerBoardShake(true);
         },
       },
     ];
 
-    const DUEL_MS = 5000;
+    const DUEL_MS = 5450;
     const startTs = performance.now();
 
     await new Promise((resolve) => {
@@ -5474,9 +5474,9 @@
         }
 
         const elapsed = now - startTs;
-        const t = Math.min(5.0, elapsed / 1000);
-        const rem = Math.max(0, 5.0 - t);
-        if (t < 3.98) clockEl.textContent = rem.toFixed(1);
+        const t = Math.min(5.45, elapsed / 1000);
+        const rem = Math.max(0, 5.45 - t);
+        if (t < 3.68) clockEl.textContent = rem.toFixed(1);
 
         // Fire any combat impact cues reached this frame
         for (const c of cues) {
@@ -5521,36 +5521,36 @@
           dOp = aOp;
         }
 
-        // Exchange 1 (0.42 - 1.05s): Attacker explosive dash SLASH -> Defender recoil
-        const p1 = strikePulse(t, 0.44, 0.62, 1.02);
+        // Exchange 1 (0.42 - 1.02s): Attacker explosive dash SLASH -> Defender recoil
+        const p1 = strikePulse(t, 0.44, 0.62, 1.00);
         if (p1 > 0) {
           ax += baseX * 0.74 * p1;
           ay -= bw * 0.025 * p1;
           aRot += 13 * p1;
           aScale += 0.07 * p1;
         }
-        const r1 = strikePulse(t, 0.58, 0.72, 1.06);
+        const r1 = strikePulse(t, 0.58, 0.72, 1.02);
         if (r1 > 0) {
           dx += bw * 0.048 * r1;
           dRot += 12 * r1;
         }
 
-        // Exchange 2 (1.05 - 1.70s): Defender leaping COUNTER -> Attacker recoil
-        const p2 = strikePulse(t, 1.06, 1.24, 1.66);
+        // Exchange 2 (1.02 - 1.62s): Defender leaping COUNTER -> Attacker recoil
+        const p2 = strikePulse(t, 1.04, 1.24, 1.60);
         if (p2 > 0) {
           dx -= baseX * 0.74 * p2;
           dy -= bw * 0.028 * p2;
           dRot -= 13 * p2;
           dScale += 0.07 * p2;
         }
-        const r2 = strikePulse(t, 1.20, 1.35, 1.68);
+        const r2 = strikePulse(t, 1.20, 1.34, 1.62);
         if (r2 > 0) {
           ax -= bw * 0.048 * r2;
           aRot -= 12 * r2;
         }
 
-        // Exchange 3 (1.68 - 2.55s): High-speed continuous BLADE FURY CLASH!
-        const clash = strikePulse(t, 1.68, 1.92, 2.56);
+        // Exchange 3 (1.60 - 2.38s): High-speed continuous BLADE FURY CLASH!
+        const clash = strikePulse(t, 1.60, 1.82, 2.38);
         if (clash > 0) {
           const vib = Math.sin(t * 78) * (bw * 0.011) * clash;
           ax += baseX * 0.54 * clash + vib;
@@ -5561,24 +5561,24 @@
           dScale += 0.06 * clash;
         }
 
-        // Exchange 4 (2.56 - 3.22s): Defender leaping CRITICAL -> Attacker staggered low
-        const p4 = strikePulse(t, 2.58, 2.78, 3.18);
+        // Exchange 4 (2.38 - 2.96s): Defender leaping CRITICAL -> Attacker staggered low
+        const p4 = strikePulse(t, 2.38, 2.56, 2.94);
         if (p4 > 0) {
           dx -= baseX * 0.8 * p4;
           dy -= bw * 0.048 * p4;
           dRot -= 15 * p4;
           dScale += 0.1 * p4;
         }
-        const r4 = strikePulse(t, 2.74, 2.92, 3.26);
+        const r4 = strikePulse(t, 2.52, 2.70, 2.98);
         if (r4 > 0) {
           ax -= bw * 0.062 * r4;
           ay += bw * 0.014 * r4;
           aRot -= 15 * r4;
         }
 
-        // Exchange 5 (3.20 - 3.88s): Attacker ROYAL RAGE relentless DOUBLE SLASH combo!
-        const p5a = strikePulse(t, 3.20, 3.36, 3.60);
-        const p5b = strikePulse(t, 3.55, 3.74, 3.92);
+        // Exchange 5 (2.94 - 3.58s): Attacker ROYAL RAGE relentless DOUBLE SLASH combo!
+        const p5a = strikePulse(t, 2.94, 3.06, 3.30);
+        const p5b = strikePulse(t, 3.24, 3.38, 3.58);
         const p5 = Math.max(p5a, p5b);
         if (p5 > 0) {
           ax += baseX * (0.72 * p5a + 0.78 * p5b);
@@ -5586,84 +5586,85 @@
           aRot += 13 * p5;
           aScale += 0.09 * p5;
         }
-        const r5 = Math.max(strikePulse(t, 3.33, 3.48, 3.68), strikePulse(t, 3.70, 3.82, 3.96));
+        const r5 = Math.max(strikePulse(t, 3.04, 3.16, 3.36), strikePulse(t, 3.35, 3.46, 3.60));
         if (r5 > 0) {
           dx += bw * 0.055 * r5;
           dRot += 14 * r5;
         }
 
-        // Exchange 6 (3.86 - 5.00s): MOVIE SWORD-LIFT EXECUTION!
-        // 3.86-4.06: Pierce forward | 4.06-4.62: Lift Loser HIGH into air on sword | 4.62-5.00: Fling off!
-        if (t >= 3.86) {
-          if (t < 4.06) {
-            // 6A: Explosive low pierce thrust straight into Defender
-            const u = smoothstep((t - 3.86) / 0.20);
-            ax = -baseX + baseX * 0.88 * u;
-            ay = bw * 0.01 * u;
-            aRot = 15 * u;
-            aScale = 1 + 0.09 * u;
+        // Exchange 6 (3.56 - 5.45s): FULL-UP PERPENDICULAR MOVIE SWORD LIFT + 1.0-SECOND HOLD!
+        // 3.56-3.74: Low pierce thrust | 3.74-4.05: Full skyward lift -> perpendicular (~88°) | 4.05-5.05: FULL 1.0s HOLD! | 5.05-5.45: Brutal fling-off!
+        if (t >= 3.56) {
+          if (t < 3.74) {
+            // 6A: Explosive pierce thrust into Defender
+            const u = smoothstep((t - 3.56) / 0.18);
+            ax = -baseX + baseX * 0.86 * u;
+            ay = bw * 0.02 * u;
+            aRot = 14 * u;
+            aScale = 1 + 0.08 * u;
 
-            dx = baseX - baseX * 0.12 * u;
+            dx = baseX - baseX * 0.14 * u;
             dy = 0;
-            dRot = 14 * u;
-          } else if (t < 4.62) {
-            // 6B: CINEMATIC SWORD LIFT! Winner rears back & hoists Loser HIGH into the air on the blade!
-            const liftU = smoothstep(Math.min(1, (t - 4.06) / 0.26));
-            const holdSway = Math.sin((t - 4.06) * 14) * (bw * 0.004) * liftU;
-            const tremble = Math.sin(t * 58) * (bw * 0.0045) * liftU;
+            dRot = 16 * u;
+          } else if (t < 5.05) {
+            // 6B (3.74-4.05s): FULL SKYWARD LIFT -> 6C (4.05-5.05s): FULL 1.0-SECOND PERPENDICULAR HOLD!
+            const liftU = smoothstep(Math.min(1, (t - 3.74) / 0.31));
+            const holdTime = Math.max(0, t - 4.05);
+            const holdBreathe = Math.sin(holdTime * 8.5) * (bw * 0.0045) * liftU;
+            const tremble = Math.sin(t * 48) * (bw * 0.0038) * liftU;
 
-            // Winner plants strong stance, tilts back heroically hoisting the blade skyward
-            ax = -baseX * (0.12 + 0.26 * liftU);
-            ay = -bw * 0.018 * liftU;
-            aRot = 15 - 29 * liftU; // sweeps from +15° lunge back to -14° heroic hoist!
-            aScale = 1.09 + 0.05 * liftU;
+            // Winner stands upright & strong directly below, driving sword nearly straight up!
+            ax = -baseX * (0.14 + 0.20 * liftU);
+            ay = bw * (0.02 + 0.025 * liftU) + holdBreathe * 0.35;
+            aRot = 14 - 22 * liftU; // upright heroic stance (-8°) thrusting straight skyward!
+            aScale = 1.08 + 0.05 * liftU;
 
-            // Loser is LIFTED HIGH OFF THE GROUND impaled on the Winner's sword!
-            dx = baseX * (0.88 - 0.16 * liftU) + tremble;
-            dy = -bw * 0.165 * liftU + holdSway;
-            dRot = 14 + 26 * liftU + Math.sin(t * 42) * 2.2;
-            dScale = 1.02;
+            // Loser is hoisted FULL UP HIGH overhead and rotated ALMOST PERPENDICULAR (~88° horizontal!) on top of the vertical sword!
+            dx = baseX * (0.86 - 0.62 * liftU) + tremble;
+            dy = -bh * 0.275 * liftU + holdBreathe;
+            dRot = 16 + 72 * liftU + Math.sin(t * 32) * 1.6 * liftU; // ~88° perpendicular to upright Winner!
+            dScale = 1.0;
 
-            // Stream subtle molten crimson sparks off the impaling blade while lifted
-            if (t - lastLiftSparkT >= 0.11) {
+            // Steady dramatic crimson & gold sparks dripping off the raised impaling blade during the 1s hold
+            if (t - lastLiftSparkT >= 0.13) {
               lastLiftSparkT = t;
-              DuelVFX.spawnSparksPct(fightX + (dx / bw) * 100, fightY + (dy / bh) * 100 - 6, 8, { crimson: true, speedMul: 0.75 });
+              DuelVFX.spawnSparksPct(fightX + (dx / bw) * 100, fightY + (dy / bh) * 100 - 4, 8, { crimson: true, speedMul: 0.72 });
             }
           } else {
-            // 6C: BRUTAL FLING-OFF! Winner whips blade forward & launches Loser spinning out!
-            const flingU = clamp01((t - 4.62) / 0.36);
+            // 6D (5.05-5.45s): BRUTAL FLING-OFF! Whip the defeated King off the vertical sword!
+            const flingU = clamp01((t - 5.05) / 0.38);
             const flingEase = flingU * flingU;
-            const whip = strikePulse(t, 4.60, 4.72, 5.0);
+            const whip = strikePulse(t, 5.03, 5.15, 5.45);
 
-            ax = -baseX * (0.38 - 0.42 * whip);
-            ay = -bw * 0.015 * (1 - flingU);
-            aRot = -14 + 34 * whip;
-            aScale = 1.14 - 0.1 * flingU;
+            ax = -baseX * (0.34 - 0.40 * whip);
+            ay = bw * 0.045 * (1 - flingU);
+            aRot = -8 + 30 * whip;
+            aScale = 1.13 - 0.1 * flingU;
 
-            // Loser flung off the sword in a smooth dramatic arc -> fades out
-            dx = baseX * 0.72 + bw * 0.20 * flingU;
-            dy = -bw * 0.165 * (1 - flingEase) + bw * 0.08 * flingEase;
-            dRot = 40 + 68 * flingU;
-            dScale = Math.max(0.55, 1.02 - 0.42 * flingEase);
+            // Loser flung off from full overhead height in a sweeping arc -> fades out
+            dx = baseX * 0.24 + bw * 0.26 * flingU;
+            dy = -bh * 0.275 * (1 - flingEase) + bh * 0.08 * flingEase;
+            dRot = 88 + 65 * flingU;
+            dScale = Math.max(0.55, 1.0 - 0.42 * flingEase);
             dOp = Math.max(0, 1 - flingU * 1.25);
           }
 
-          // Update gleaming 60fps impaling steel sword connecting Winner's gauntlet -> through lifted Loser!
-          if (t >= 3.96 && t < 4.64) {
+          // Gleaming 60fps nearly-vertical skyward steel sword connecting Winner's raised hand -> straight UP through perpendicular Loser!
+          if (t >= 3.64 && t < 5.07) {
             const cxPx = (fightX / 100) * bw;
             const cyPx = (fightY / 100) * bh;
-            const liftProgress = t < 4.06 ? 0 : smoothstep(Math.min(1, (t - 4.06) / 0.26));
-            const hiltX = cxPx + ax + bw * (0.045 - 0.015 * liftProgress);
-            const hiltY = cyPx + ay - bh * (0.075 + 0.035 * liftProgress);
-            const targetX = cxPx + dx + bw * 0.035;
-            const targetY = cyPx + dy - bh * 0.075;
-            // Extend tip cleanly past Loser's back for true movie impale silhouette!
+            const liftProgress = t < 3.74 ? 0 : smoothstep(Math.min(1, (t - 3.74) / 0.31));
+            const hiltX = cxPx + ax + bw * (0.045 - 0.005 * liftProgress);
+            const hiltY = cyPx + ay - bh * (0.075 + 0.055 * liftProgress);
+            const targetX = cxPx + dx + bw * (0.025 - 0.015 * liftProgress);
+            const targetY = cyPx + dy - bh * (0.075 - 0.015 * liftProgress);
+            // Extend gleaming steel blade tip cleanly OUT above the perpendicular Loser's back!
             const vx = targetX - hiltX;
             const vy = targetY - hiltY;
-            const bladeGrow = t < 4.03 ? smoothstep((t - 3.96) / 0.07) : 1;
-            const tipX = hiltX + vx * (1.42 * bladeGrow);
-            const tipY = hiltY + vy * (1.42 * bladeGrow);
-            const bladeAlpha = t > 4.56 ? Math.max(0, 1 - (t - 4.56) / 0.08) : 1;
+            const bladeGrow = t < 3.71 ? smoothstep((t - 3.64) / 0.07) : 1;
+            const tipX = hiltX + vx * (1.36 * bladeGrow);
+            const tipY = hiltY + vy * (1.36 * bladeGrow);
+            const bladeAlpha = t > 4.99 ? Math.max(0, 1 - (t - 4.99) / 0.08) : 1;
             DuelVFX.setSwordBeam({ x0: hiltX, y0: hiltY, x1: tipX, y1: tipY, alpha: bladeAlpha });
           } else {
             DuelVFX.setSwordBeam(null);
