@@ -25,6 +25,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -111,6 +112,13 @@ public class MainActivity extends Activity {
         box.setBackgroundColor(Color.parseColor("#0A245E"));
         int pad = dp(28);
         box.setPadding(pad, pad, pad, pad);
+
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(R.mipmap.ic_launcher);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        LinearLayout.LayoutParams logoLp = new LinearLayout.LayoutParams(dp(120), dp(120));
+        logoLp.bottomMargin = dp(16);
+        box.addView(logo, logoLp);
 
         TextView title = new TextView(this);
         title.setText("LUDO WARS");
