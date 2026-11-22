@@ -29,7 +29,7 @@
     --navy-card: #0c47b8;
     --navy-card-dark: #072d7c;
 
-    --board-size: min(82vh, 58vw, 680px);
+    --board-size: min(74vh, 55vw, 610px);
     --cell-border: #8d9bb0;
   }
 
@@ -156,13 +156,13 @@
     z-index: 5;
     width: 100vw;
     height: 100vh;
-    padding: 50px 18px 16px;
+    padding: 46px 18px 10px;
     display: grid;
-    grid-template-columns: minmax(195px, 1fr) auto minmax(195px, 1fr);
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: minmax(170px, 1fr) auto minmax(170px, 1fr);
+    grid-template-rows: 1fr 1fr auto;
     align-items: center;
     justify-items: center;
-    gap: 10px 18px;
+    gap: 8px 18px;
   }
 
   .board-stage {
@@ -178,7 +178,7 @@
 
   .corner-slot {
     width: 100%;
-    max-width: 256px;
+    max-width: 236px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -186,8 +186,181 @@
 
   .slot-tl { grid-column: 1; grid-row: 1; align-self: start; justify-self: start; margin-top: 4px; }
   .slot-tr { grid-column: 3; grid-row: 1; align-self: start; justify-self: end;   margin-top: 4px; }
-  .slot-bl { grid-column: 1; grid-row: 2; align-self: end;   justify-self: start; margin-bottom: 4px; }
-  .slot-br { grid-column: 3; grid-row: 2; align-self: end;   justify-self: end;   margin-bottom: 4px; }
+  .slot-bl { grid-column: 1; grid-row: 2 / span 2; align-self: end; justify-self: start; margin-bottom: 4px; }
+  .slot-br { grid-column: 3; grid-row: 2 / span 2; align-self: end; justify-self: end;   margin-bottom: 4px; }
+
+  /* ==================== ONE FIXED SHARED DICE DOCK ==================== */
+  .shared-dice-dock {
+    grid-column: 2;
+    grid-row: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 7px 18px 7px 12px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(13, 46, 122, 0.94), rgba(6, 22, 64, 0.97));
+    border: 2.5px solid var(--p-light, var(--gold-mid));
+    box-shadow:
+      0 10px 26px rgba(0, 0, 0, 0.58),
+      0 0 22px var(--accent-glow, rgba(240, 190, 56, 0.45)),
+      inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    transition: border-color 0.22s ease, box-shadow 0.22s ease;
+    z-index: 22;
+  }
+
+  .dice-ring-wrap {
+    position: relative;
+    width: 78px;
+    height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .timer-ring-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    pointer-events: none;
+  }
+
+  .timer-ring-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.14);
+    stroke-width: 5;
+  }
+
+  .timer-ring-fg {
+    fill: none;
+    stroke: var(--p-light, #52e68a);
+    stroke-width: 5;
+    stroke-linecap: round;
+    transition: stroke 0.2s ease;
+  }
+
+  .timer-ring-fg.warn { stroke: #ffc83d; }
+  .timer-ring-fg.danger { stroke: #ff3038; filter: drop-shadow(0 0 6px #ff3038); }
+
+  .shared-dice-dock .dice-tray {
+    width: 62px;
+    height: 62px;
+    border-radius: 14px;
+  }
+
+  .shared-turn-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 108px;
+  }
+
+  .shared-turn-player {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+    max-width: 145px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .shared-turn-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background: var(--p-main, #00b34c);
+    box-shadow: 0 0 8px var(--p-main, #00b34c);
+    flex-shrink: 0;
+  }
+
+  .shared-timer-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .shared-timer-badge {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    color: #b7ffda;
+    min-width: 44px;
+    text-align: center;
+  }
+
+  .shared-timer-badge.warn { color: #ffe169; border-color: rgba(255, 210, 60, 0.65); }
+  .shared-timer-badge.danger { color: #ff6e74; border-color: rgba(255, 60, 70, 0.85); animation: timerUrgent 0.45s infinite alternate; }
+
+  @keyframes timerUrgent {
+    from { transform: scale(1); }
+    to   { transform: scale(1.1); }
+  }
+
+  .shared-tap-tag {
+    font-size: 10.5px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: #ffe784;
+    opacity: 0;
+    transition: opacity 0.16s ease;
+  }
+
+  .shared-dice-dock.can-roll .shared-tap-tag {
+    opacity: 1;
+  }
+
+  .player-wrap.is-eliminated {
+    opacity: 0.42;
+    filter: grayscale(0.75);
+  }
+
+  .player-wrap.is-eliminated .player-card {
+    border-color: #ff3842;
+  }
+
+  .lost-stamp {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-10deg);
+    padding: 2px 10px;
+    border-radius: 6px;
+    background: rgba(190, 12, 22, 0.94);
+    border: 2px solid #ffb3b7;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    z-index: 6;
+    pointer-events: none;
+  }
+
+  .player-wrap.is-eliminated .lost-stamp {
+    display: block;
+  }
+
+  .token.eliminated {
+    opacity: 0.2 !important;
+    filter: grayscale(1);
+    pointer-events: none;
+  }
 
   /* ==================== GLOSSY ARCADE PLAYER CARDS ==================== */
   .player-wrap {
@@ -557,6 +730,20 @@
     box-shadow: 0 0 7px #ffd000;
     transform: scale(1.2);
   }
+
+  .status-dot.timeout-lost {
+    background: radial-gradient(circle at 35% 30%, #ff7078, #cc0c18);
+    box-shadow: 0 0 6px rgba(255, 36, 48, 0.85);
+  }
+
+  .timeout-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #cfe2ff;
+    letter-spacing: 0.3px;
+  }
+
+  .timeout-label.warn { color: #ff8b91; }
 
   .status-dot.dim {
     background: #1b3b75;
@@ -2364,33 +2551,43 @@
   /* ==================== RESPONSIVE BREAKPOINTS ==================== */
   @media (max-width: 960px) {
     :root {
-      --board-size: min(92vw, 48vh, 460px);
+      --board-size: min(94vw, 52vh, 460px);
     }
 
     .arena {
-      padding: 44px 8px 6px;
-      grid-template-columns: 1fr 1fr;
+      padding: 44px 6px 6px;
+      grid-template-columns: 1fr auto 1fr;
       grid-template-rows: auto auto auto;
-      gap: 4px 8px;
+      gap: 4px 6px;
       align-content: space-between;
     }
 
     .board-stage {
-      grid-column: 1 / span 2;
+      grid-column: 1 / span 3;
       grid-row: 2;
     }
 
     .slot-tl { grid-column: 1; grid-row: 1; justify-self: start; align-self: center; margin: 0; }
-    .slot-tr { grid-column: 2; grid-row: 1; justify-self: end;   align-self: center; margin: 0; }
+    .slot-tr { grid-column: 3; grid-row: 1; justify-self: end;   align-self: center; margin: 0; }
     .slot-bl { grid-column: 1; grid-row: 3; justify-self: start; align-self: center; margin: 0; }
-    .slot-br { grid-column: 2; grid-row: 3; justify-self: end;   align-self: center; margin: 0; }
+    .slot-br { grid-column: 3; grid-row: 3; justify-self: end;   align-self: center; margin: 0; }
 
-    .corner-slot { max-width: 215px; }
+    .shared-dice-dock {
+      grid-column: 2;
+      grid-row: 3;
+      padding: 5px 10px 5px 7px;
+      gap: 8px;
+    }
+    .dice-ring-wrap { width: 64px; height: 64px; }
+    .shared-dice-dock .dice-tray { width: 50px; height: 50px; }
+    .shared-turn-meta { min-width: 68px; }
+    .shared-turn-player { font-size: 11.5px; max-width: 82px; }
+    .shared-timer-badge { font-size: 11px; padding: 1px 6px; min-width: 34px; }
+
+    .corner-slot { max-width: 140px; }
     .player-card { padding: 5px 6px; border-radius: 12px; }
-    .card-header { margin-bottom: 3px; min-height: 18px; }
-    .crest-col { width: 64px; padding: 4px 2px; gap: 3px; }
-    .pawn-crest { width: 24px; height: 28px; }
-    .dice-tray { width: 54px; height: 54px; }
+    .crest-col { width: 42px; padding: 3px 2px; gap: 2px; }
+    .pawn-crest { width: 22px; height: 26px; }
     .dice-cube { width: 34px; height: 34px; }
     .dice-face.f1 { transform: rotateY(0deg) translateZ(17px); }
     .dice-face.f2 { transform: rotateY(90deg) translateZ(17px); }
@@ -2399,8 +2596,7 @@
     .dice-face.f5 { transform: rotateY(-90deg) translateZ(17px); }
     .dice-face.f6 { transform: rotateY(180deg) translateZ(17px); }
     .pip { width: 6px; height: 6px; }
-    .coin-bar { font-size: 11px; margin: 2px 0; }
-    .player-name { font-size: 10px; max-width: 82px; }
+    .player-name { font-size: 10.5px; max-width: 76px; }
     .top-bar { gap: 4px; padding: 4px 7px; }
     .bar-btn { padding: 4px 8px; font-size: 11px; }
   }
@@ -2413,13 +2609,13 @@
 
 <!-- Subtle Top Control Bar -->
 <header class="top-bar" aria-label="Game controls">
-  <button class="bar-btn" id="btn-home" title="Return to Ludo Homepage">Home</button>
-  <button class="team-pill" id="btn-team-pill" title="Click to copy active Team Code">Team: —</button>
+  <button class="bar-btn" id="btn-home">Home</button>
+  <button class="team-pill" id="btn-team-pill">—</button>
   <div class="bar-sep"></div>
-  <button class="bar-btn" id="btn-speed" title="Toggle animation speed">1&times; Speed</button>
-  <button class="bar-btn active" id="btn-sound" title="Toggle Web Audio sound effects">Sound On</button>
+  <button class="bar-btn" id="btn-speed">1&times;</button>
+  <button class="bar-btn active" id="btn-sound">Sound</button>
   <div class="bar-sep"></div>
-  <button class="bar-btn fair-btn" id="btn-rng" title="Inspect cryptographic RNG fairness & run 10,000-roll test">Fair RNG</button>
+  <button class="bar-btn fair-btn" id="btn-rng">RNG</button>
 </header>
 
 <!-- Main Arena (Dynamic Per-Player Perspective: Active Local Player Always at Bottom-Left) -->
@@ -2521,10 +2717,10 @@
           </div>
 
           <div class="board-fighter left" id="board-king-a">
-            <img src="assets/king1.png" alt="Attacker Warrior King" />
+            <img id="board-king-a-img" src="assets/king1_green.png" alt="Attacker Warrior King" />
           </div>
           <div class="board-fighter right" id="board-king-d">
-            <img src="assets/king2.png" alt="Defender Emperor King" />
+            <img id="board-king-d-img" src="assets/king2_blue.png" alt="Defender Emperor King" />
           </div>
 
           <canvas id="board-duel-canvas"></canvas>
@@ -2535,6 +2731,30 @@
 
   <!-- Screen Bottom-Left (ALWAYS YOU!) -->
   <section class="corner-slot slot-bl" id="slot-bl"></section>
+
+  <!-- ONE FIXED SHARED DICE FOR ALL 4 PLAYERS + 10s COUNTDOWN -->
+  <section class="shared-dice-dock" id="shared-dice-dock" aria-label="Shared game dice">
+    <div class="dice-ring-wrap">
+      <svg class="timer-ring-svg" viewBox="0 0 80 80">
+        <circle class="timer-ring-bg" cx="40" cy="40" r="35"></circle>
+        <circle class="timer-ring-fg" id="turn-timer-ring" cx="40" cy="40" r="35"
+                stroke-dasharray="219.91" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="dice-tray" id="shared-dice-tray" role="button" tabindex="0" aria-label="Roll dice">
+        <div id="shared-dice-slot"></div>
+      </div>
+    </div>
+    <div class="shared-turn-meta">
+      <div class="shared-turn-player">
+        <span class="shared-turn-dot" id="shared-turn-dot"></span>
+        <span id="shared-turn-name">—</span>
+      </div>
+      <div class="shared-timer-row">
+        <span class="shared-timer-badge" id="shared-timer-badge">10s</span>
+        <span class="shared-tap-tag">ROLL</span>
+      </div>
+    </div>
+  </section>
 
   <!-- Screen Bottom-Right -->
   <section class="corner-slot slot-br" id="slot-br"></section>
@@ -2598,21 +2818,21 @@
 
 <!-- Kill Demo Floating Replay Bar (Only shown during Kill Demo) -->
 <div class="demo-controls" id="demo-controls">
-  <button class="bar-btn active" id="btn-demo-replay">Replay Kill</button>
-  <button class="bar-btn" id="btn-demo-slow">Slow-Mo (0.5&times;)</button>
-  <button class="bar-btn" id="btn-demo-color">Color: Green</button>
-  <button class="bar-btn" id="btn-demo-exit">Back to Home</button>
+  <button class="bar-btn active" id="btn-demo-replay">Replay</button>
+  <button class="bar-btn" id="btn-demo-slow">0.5&times;</button>
+  <button class="bar-btn" id="btn-demo-color">Green</button>
+  <button class="bar-btn" id="btn-demo-exit">Home</button>
 </div>
 
-<!-- Play Store-Style Ludo Homepage & Mode Selector -->
+<!-- Homepage & Mode Selector (Clean Minimal UI) -->
 <div class="home-screen" id="home-screen">
   <div class="home-shell">
     <div class="home-top-row">
-      <span class="server-pill offline" id="server-status-pill">Checking server...</span>
+      <span class="server-pill offline" id="server-status-pill">...</span>
       <div style="display:flex; gap:6px; align-items:center;">
         <button class="secondary-btn" id="btn-kill-demo" style="padding:4px 10px; font-size:11px; border-color:rgba(255,110,115,0.75); color:#ffd2d4; background:rgba(239,35,42,0.28);">Kill Demo</button>
-        <button class="secondary-btn" id="btn-home-rng" style="padding:4px 10px; font-size:11px; border-color:rgba(82,230,138,0.55); color:#a8ffca;">100% Fair RNG</button>
-        <button class="secondary-btn" id="btn-resume-match" style="display:none; padding:4px 10px; font-size:11px;">Resume Match</button>
+        <button class="secondary-btn" id="btn-home-rng" style="padding:4px 10px; font-size:11px; border-color:rgba(82,230,138,0.55); color:#a8ffca;">RNG</button>
+        <button class="secondary-btn" id="btn-resume-match" style="display:none; padding:4px 10px; font-size:11px;">Resume</button>
       </div>
     </div>
 
@@ -2627,57 +2847,43 @@
         </svg>
       </div>
       <h1 class="hero-title">LUDO ROYAL</h1>
-      <div class="hero-sub">Play on Your Own Devices &bull; Zero Luck Favoritism &bull; King Kill FX</div>
     </div>
 
-    <!-- VIEW 0: Play Store-Style Main Menu -->
+    <!-- VIEW 0: Main Menu -->
     <div id="view-home-main">
       <div class="mode-stack">
         <button class="mode-btn friends" id="btn-menu-friends">
-          <div>
-            <div class="mode-title">Play with Friends (Team Code)</div>
-            <div class="mode-desc">Pick 2–4 Players &bull; Generate Team Code &bull; Own Phones or Laptop</div>
-          </div>
+          <div class="mode-title">Play with Friends</div>
           <span class="mode-arrow">&rsaquo;</span>
         </button>
 
         <button class="mode-btn join-quick" id="btn-menu-join">
-          <div>
-            <div class="mode-title">Join with Team Code</div>
-            <div class="mode-desc">Enter your Captain's 6-character Team Code to join their room</div>
-          </div>
+          <div class="mode-title">Join Room</div>
           <span class="mode-arrow">&rsaquo;</span>
         </button>
 
         <button class="mode-btn bots" id="btn-menu-bots">
-          <div>
-            <div class="mode-title">Play vs Computer (Fair Bots)</div>
-            <div class="mode-desc">Choose 2–4 Players &bull; Strictly Unbiased CSPRNG Dice</div>
-          </div>
+          <div class="mode-title">Play vs Computer</div>
           <span class="mode-arrow">&rsaquo;</span>
         </button>
 
         <button class="mode-btn local" id="btn-menu-local">
-          <div>
-            <div class="mode-title">Pass &amp; Play (Same Device)</div>
-            <div class="mode-desc">Choose 2–4 Players &bull; Take turns on one laptop or tablet</div>
-          </div>
+          <div class="mode-title">Pass &amp; Play</div>
           <span class="mode-arrow">&rsaquo;</span>
         </button>
       </div>
     </div>
 
-    <!-- VIEW 1: Play with Friends — Step 1 (Select 2-4 People & Generate Team Code) -->
+    <!-- VIEW 1: Create Room -->
     <div id="view-create-step1" style="display:none;">
       <div class="back-row">
-        <button class="secondary-btn" data-home-back>&larr; Home</button>
-        <span style="font-size:12px; font-weight:800; color:#ffe784;">Play with Friends &bull; Create Team</span>
+        <button class="secondary-btn" data-home-back>&larr; Back</button>
+        <span style="font-size:12px; font-weight:800; color:#ffe784;">Create Room</span>
       </div>
-      <label class="field-label">1. How many people are playing? (Min 2, Max 4)</label>
+      <label class="field-label">Players</label>
       <div class="count-grid" id="count-grid">
         <button type="button" class="count-card selected" data-count="2">
           <span class="count-num">2</span>
-          <span class="count-sub">Players</span>
           <span class="count-dots">
             <span class="count-dot" style="background:#00b34c"></span>
             <span class="count-dot" style="background:#189ef8"></span>
@@ -2685,7 +2891,6 @@
         </button>
         <button type="button" class="count-card" data-count="3">
           <span class="count-num">3</span>
-          <span class="count-sub">Players</span>
           <span class="count-dots">
             <span class="count-dot" style="background:#00b34c"></span>
             <span class="count-dot" style="background:#ffd400"></span>
@@ -2694,7 +2899,6 @@
         </button>
         <button type="button" class="count-card" data-count="4">
           <span class="count-num">4</span>
-          <span class="count-sub">Players</span>
           <span class="count-dots">
             <span class="count-dot" style="background:#00b34c"></span>
             <span class="count-dot" style="background:#ffd400"></span>
@@ -2705,23 +2909,23 @@
       </div>
 
       <div style="margin-bottom:12px;">
-        <label class="field-label">2. Pick Your Color (Captain)</label>
+        <label class="field-label">Color</label>
         <div class="color-picker-grid" id="create-color-grid"></div>
       </div>
 
       <div style="margin-bottom:14px;">
-        <label class="field-label" for="captain-name-input">3. Team Captain Name</label>
-        <input class="seat-input" id="captain-name-input" maxlength="18" value="Captain" placeholder="Enter Team Captain name" />
+        <label class="field-label" for="captain-name-input">Name</label>
+        <input class="seat-input" id="captain-name-input" maxlength="18" value="Captain" placeholder="Name" />
       </div>
 
-      <button class="primary-btn" id="btn-generate-code">Generate Team Code &amp; Share Link</button>
+      <button class="primary-btn" id="btn-generate-code">Create Room</button>
     </div>
 
-    <!-- VIEW 2: Team Waiting Room (Strict Member Count Gate + Share Link + Fix Color/Name Before Start) -->
+    <!-- VIEW 2: Team Waiting Room -->
     <div id="view-waiting-room" style="display:none;">
       <div class="code-banner">
         <div>
-          <div style="font-size:10.5px; color:#9ec3ff; font-weight:800; letter-spacing:0.6px; text-transform:uppercase;">Team Code</div>
+          <div style="font-size:10.5px; color:#9ec3ff; font-weight:800; letter-spacing:0.6px; text-transform:uppercase;">Room Code</div>
           <div class="code-value" id="waiting-code-display">------</div>
         </div>
         <div style="display:flex; flex-direction:column; gap:6px;">
@@ -2731,17 +2935,17 @@
       </div>
 
       <div class="share-link-box" id="share-link-box" style="display:none;">
-        <div style="font-weight:800; color:#9dffca;" id="share-link-heading">Share this Link with Anyone to Join:</div>
+        <div style="font-weight:800; color:#9dffca;" id="share-link-heading">Invite Link</div>
         <div class="share-url-row">
           <div class="share-url-text" id="share-url-text"></div>
-          <button class="secondary-btn" id="btn-copy-link" style="padding:6px 10px;">Copy Link</button>
+          <button class="secondary-btn" id="btn-copy-link" style="padding:6px 10px;">Copy</button>
         </div>
       </div>
 
       <div class="progress-wrap">
         <div class="progress-head">
-          <span id="waiting-progress-label">1 / 2 Members Joined (including Captain)</span>
-          <span id="waiting-status-tag" style="color:#ffe46e;">Waiting...</span>
+          <span id="waiting-progress-label">1 / 2</span>
+          <span id="waiting-status-tag" style="color:#ffe46e;">Waiting</span>
         </div>
         <div class="progress-track">
           <div class="progress-fill" id="waiting-progress-fill" style="width:50%;"></div>
@@ -2750,115 +2954,100 @@
 
       <div class="roster-list" id="waiting-roster"></div>
 
-      <!-- Fix / Change Your Color & Name Before Match Starts -->
       <div class="edit-seat-box" id="edit-seat-box">
-        <label class="field-label" style="margin-bottom:6px; color:#ffe784;">Fix Your Color &amp; Name Before Start</label>
+        <label class="field-label" style="margin-bottom:6px; color:#ffe784;">Color &amp; Name</label>
         <div class="color-picker-grid" id="waiting-color-grid" style="margin-bottom:8px;"></div>
         <div style="display:flex; gap:7px;">
-          <input class="seat-input" id="waiting-my-name" maxlength="18" placeholder="Your display name" />
-          <button class="secondary-btn" id="btn-save-my-name" style="border-color:#ffe46e; color:#ffe999;">Save Name</button>
+          <input class="seat-input" id="waiting-my-name" maxlength="18" placeholder="Name" />
+          <button class="secondary-btn" id="btn-save-my-name" style="border-color:#ffe46e; color:#ffe999;">Save</button>
         </div>
         <div class="lobby-msg" id="waiting-edit-msg" style="min-height:14px;"></div>
       </div>
 
       <div class="inline-join-box" id="inline-join-box">
-        <label class="field-label" style="margin-bottom:5px;">Or Add Member on This Laptop Using Team Code</label>
+        <label class="field-label" style="margin-bottom:5px;">Add Player Here</label>
         <div class="inline-join-grid">
           <input class="seat-input code-input" id="inline-code-input" maxlength="6" placeholder="CODE" />
-          <input class="seat-input" id="inline-name-input" maxlength="18" placeholder="Member Name" />
-          <button class="secondary-btn" id="btn-inline-join" style="background:linear-gradient(180deg,#2ee67a,#0a9e48);color:#032612;border-color:#a8ffca;">Join</button>
+          <input class="seat-input" id="inline-name-input" maxlength="18" placeholder="Name" />
+          <button class="secondary-btn" id="btn-inline-join" style="background:linear-gradient(180deg,#2ee67a,#0a9e48);color:#032612;border-color:#a8ffca;">Add</button>
         </div>
         <div class="lobby-msg" id="inline-join-msg"></div>
       </div>
 
-      <button class="primary-btn" id="btn-launch-match" disabled>Waiting for more members...</button>
+      <button class="primary-btn" id="btn-launch-match" disabled>Waiting...</button>
     </div>
 
-    <!-- VIEW 3: Join with Team Code (Fix Color & Name Before Joining!) -->
+    <!-- VIEW 3: Join Room -->
     <div id="view-join-tab" style="display:none;">
       <div class="back-row">
-        <button class="secondary-btn" data-home-back>&larr; Home</button>
-        <span style="font-size:12px; font-weight:800; color:#ffe784;">Join Friend's Team</span>
+        <button class="secondary-btn" data-home-back>&larr; Back</button>
+        <span style="font-size:12px; font-weight:800; color:#ffe784;">Join Room</span>
       </div>
       <div style="margin-bottom:12px;">
-        <label class="field-label" for="join-code-input">1. Enter 6-Character Team Code</label>
-        <input class="seat-input code-input" id="join-code-input" maxlength="6" placeholder="E.G. K7M9P2" style="font-size:18px; padding:10px;" />
+        <label class="field-label" for="join-code-input">Room Code</label>
+        <input class="seat-input code-input" id="join-code-input" maxlength="6" placeholder="CODE" style="font-size:18px; padding:10px;" />
       </div>
       <div style="margin-bottom:12px;">
-        <label class="field-label">2. Pick Your Color (Available Colors Shown Live)</label>
+        <label class="field-label">Color</label>
         <div class="color-picker-grid" id="join-color-grid"></div>
       </div>
       <div style="margin-bottom:14px;">
-        <label class="field-label" for="join-name-input">3. Your Player Name</label>
-        <input class="seat-input" id="join-name-input" maxlength="18" placeholder="Enter your name" />
+        <label class="field-label" for="join-name-input">Name</label>
+        <input class="seat-input" id="join-name-input" maxlength="18" placeholder="Name" />
       </div>
-      <button class="primary-btn" id="btn-join-submit">Join Game with Team Code</button>
+      <button class="primary-btn" id="btn-join-submit">Join</button>
       <div class="lobby-msg" id="join-tab-msg" style="text-align:center;"></div>
     </div>
 
-    <!-- VIEW 4: Play vs Computer (Fair Bots) -->
+    <!-- VIEW 4: Play vs Computer -->
     <div id="view-bots-setup" style="display:none;">
       <div class="back-row">
-        <button class="secondary-btn" data-home-back>&larr; Home</button>
-        <span style="font-size:12px; font-weight:800; color:#9bd6ff;">Play vs Computer (Fair Bots)</span>
+        <button class="secondary-btn" data-home-back>&larr; Back</button>
+        <span style="font-size:12px; font-weight:800; color:#9bd6ff;">vs Computer</span>
       </div>
-      <label class="field-label">1. Select Total Players (You + Fair Bots)</label>
+      <label class="field-label">Players</label>
       <div class="count-grid" id="bots-count-grid">
         <button type="button" class="count-card selected" data-bcount="2">
           <span class="count-num">2</span>
-          <span class="count-sub">1 vs 1 Bot</span>
         </button>
         <button type="button" class="count-card" data-bcount="3">
           <span class="count-num">3</span>
-          <span class="count-sub">1 vs 2 Bots</span>
         </button>
         <button type="button" class="count-card" data-bcount="4">
           <span class="count-num">4</span>
-          <span class="count-sub">1 vs 3 Bots</span>
         </button>
       </div>
       <div style="margin-bottom:12px;">
-        <label class="field-label">2. Pick Your Color</label>
+        <label class="field-label">Color</label>
         <div class="color-picker-grid" id="bots-color-grid"></div>
       </div>
       <div style="margin-bottom:14px;">
-        <label class="field-label" for="bots-player-name">3. Your Name</label>
-        <input class="seat-input" id="bots-player-name" maxlength="18" value="Player 1" placeholder="Enter your name" />
+        <label class="field-label" for="bots-player-name">Name</label>
+        <input class="seat-input" id="bots-player-name" maxlength="18" value="Player 1" placeholder="Name" />
       </div>
-      <button class="primary-btn" id="btn-start-bots">Play vs Fair Bots</button>
+      <button class="primary-btn" id="btn-start-bots">Start</button>
     </div>
 
-    <!-- VIEW 5: Pass & Play (Local Same Device) -->
+    <!-- VIEW 5: Pass & Play -->
     <div id="view-local-setup" style="display:none;">
       <div class="back-row">
-        <button class="secondary-btn" data-home-back>&larr; Home</button>
-        <span style="font-size:12px; font-weight:800; color:#dfc4ff;">Pass &amp; Play (Same Device)</span>
+        <button class="secondary-btn" data-home-back>&larr; Back</button>
+        <span style="font-size:12px; font-weight:800; color:#dfc4ff;">Pass &amp; Play</span>
       </div>
-      <label class="field-label">1. How many players? (Min 2, Max 4)</label>
+      <label class="field-label">Players</label>
       <div class="count-grid" id="local-count-grid">
         <button type="button" class="count-card selected" data-lcount="2">
           <span class="count-num">2</span>
-          <span class="count-sub">Players</span>
         </button>
         <button type="button" class="count-card" data-lcount="3">
           <span class="count-num">3</span>
-          <span class="count-sub">Players</span>
         </button>
         <button type="button" class="count-card" data-lcount="4">
           <span class="count-num">4</span>
-          <span class="count-sub">Players</span>
         </button>
       </div>
       <div id="local-name-fields" style="margin-bottom:14px;"></div>
-      <button class="primary-btn" id="btn-start-local">Start Pass &amp; Play Match</button>
-    </div>
-
-    <div class="rule-strip">
-      <span class="rule-chip">Extra Dice on 6</span>
-      <span class="rule-chip">Extra Dice on Kill</span>
-      <span class="rule-chip">Extra Dice on Home</span>
-      <span class="rule-chip">King Knife Kill</span>
-      <span class="rule-chip">Zero Bias RNG</span>
+      <button class="primary-btn" id="btn-start-local">Start</button>
     </div>
   </div>
 </div>
@@ -3357,6 +3546,10 @@
       });
     }
 
+    function timerTick(urgent = false) {
+      tone(urgent ? 980 : 720, 0.055, 'triangle', urgent ? 0.09 : 0.05);
+    }
+
     return {
       get enabled() { return enabled; },
       set enabled(v) {
@@ -3377,6 +3570,7 @@
       homeChime,
       forfeitBuzz,
       winFanfare,
+      timerTick,
     };
   })();
 
@@ -3694,8 +3888,8 @@
     </svg>`;
   }
 
-  function buildDiceCubeHTML(playerIdx) {
-    const p = PLAYERS_META[playerIdx];
+  function buildSharedDiceCubeHTML(playerIdx = 2) {
+    const p = PLAYERS_META[playerIdx] || PLAYERS_META[2];
     // Pip layouts in a 3x3 grid (indices 0..8)
     const layouts = {
       1: [4],
@@ -3713,8 +3907,8 @@
       }
       faces += `<div class="dice-face f${f}">${cells}</div>`;
     }
-    return `<div class="dice-cube" id="dice-${playerIdx}"
-      style="--die-bg-1:${p.dieBg1};--die-bg-2:${p.dieBg2};--die-pip:${p.diePip};--die-border:rgba(255,255,255,0.75);">
+    return `<div class="dice-cube visible" id="shared-dice-cube"
+      style="--die-bg-1:${p.dieBg1};--die-bg-2:${p.dieBg2};--die-pip:${p.diePip};--die-border:rgba(255,255,255,0.78);">
       ${faces}
     </div>`;
   }
@@ -3729,8 +3923,12 @@
   };
 
   /* =========================================================================
-     5. GAME STATE, PERSPECTIVE ROTATION & MULTI-DEVICE ROOM SYNC
+     5. GAME STATE, 10s TURN TIMER (5 TIMEOUTS = LOST) & MULTI-DEVICE SYNC
      ========================================================================= */
+  const TURN_TIMEOUT_MS = 10000;
+  const MAX_TIMEOUTS = 5;
+  const TIMER_RING_CIRC = 2 * Math.PI * 35; // 219.91
+
   const SEAT_LAYOUTS = {
     2: [2, 0],          // Green (Captain) vs Blue — diagonally opposite
     3: [2, 3, 0],       // Green (Captain) -> Yellow -> Blue (clockwise)
@@ -3771,9 +3969,124 @@
       tokens: [-1, -1, -1, -1],
       captures: 0,
       capturedCount: 0,
+      timeouts: 0,
+      eliminated: false,
       lastFace: 1,
     }));
   }
+
+  // 10-Second Turn Timer Controller (radial ring + numeric countdown + 5-timeout elimination)
+  const TurnTimer = (() => {
+    let rafId = null;
+    let fallbackTimerId = null;
+    let startAt = 0;
+    let deadline = 0;
+    let durationMs = TURN_TIMEOUT_MS;
+    let runningGen = -1;
+    let lastTickSec = 4;
+    let serverMode = false;
+    let fired = false;
+
+    function updateVisual(remMs) {
+      const ring = document.getElementById('turn-timer-ring');
+      const badge = document.getElementById('shared-timer-badge');
+      const clamped = Math.max(0, Math.min(durationMs, remMs));
+      const frac = durationMs > 0 ? clamped / durationMs : 1;
+      const secs = Math.ceil(clamped / 1000);
+
+      if (ring) {
+        ring.style.strokeDashoffset = (TIMER_RING_CIRC * (1 - frac)).toFixed(2);
+        ring.classList.toggle('warn', secs <= 5 && secs > 3);
+        ring.classList.toggle('danger', secs <= 3);
+      }
+      if (badge) {
+        badge.textContent = `${secs}s`;
+        badge.classList.toggle('warn', secs <= 5 && secs > 3);
+        badge.classList.toggle('danger', secs <= 3);
+      }
+    }
+
+    function stop(resetFull = true) {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      if (fallbackTimerId) {
+        clearTimeout(fallbackTimerId);
+        fallbackTimerId = null;
+      }
+      runningGen = -1;
+      fired = false;
+      if (resetFull) updateVisual(TURN_TIMEOUT_MS);
+    }
+
+    function fireTimeout(genSnapshot) {
+      if (serverMode || fired) return;
+      if (genSnapshot !== Game.matchGen) return;
+      fired = true;
+      stop(false);
+      handleLocalTurnTimeout(genSnapshot);
+    }
+
+    function start({ animDelayMs = 0, serverDeadline = null, isServer = false } = {}) {
+      stop(true);
+      if (Game.phase !== 'AWAITING_ROLL' && Game.phase !== 'CHOOSING_TOKEN') return;
+      const p = Game.players[Game.currentPlayer];
+      if (!p || !p.active || p.eliminated) return;
+
+      const genSnapshot = Game.matchGen;
+      runningGen = genSnapshot;
+      durationMs = TURN_TIMEOUT_MS;
+      serverMode = !!isServer;
+      fired = false;
+      lastTickSec = 4;
+
+      const now = Date.now();
+      if (serverMode && serverDeadline) {
+        deadline = serverDeadline;
+        startAt = deadline - durationMs;
+      } else {
+        startAt = now + Math.max(0, animDelayMs);
+        deadline = startAt + durationMs;
+        // Authoritative local fallback timer (fires even if browser tab is backgrounded)
+        fallbackTimerId = setTimeout(() => fireTimeout(genSnapshot), Math.max(50, deadline - Date.now() + 30));
+      }
+
+      const tick = () => {
+        if (runningGen !== genSnapshot || genSnapshot !== Game.matchGen) return;
+        if (Game.phase !== 'AWAITING_ROLL' && Game.phase !== 'CHOOSING_TOKEN') {
+          stop(true);
+          return;
+        }
+        const cur = Date.now();
+        if (cur < startAt) {
+          updateVisual(durationMs);
+          rafId = requestAnimationFrame(tick);
+          return;
+        }
+        const rem = Math.max(0, deadline - cur);
+        updateVisual(rem);
+
+        const sec = Math.ceil(rem / 1000);
+        if (sec <= 3 && sec >= 1 && sec < lastTickSec) {
+          lastTickSec = sec;
+          if (isLocallyControlled(Game.currentPlayer)) {
+            SoundFX.timerTick(sec === 1);
+          }
+        }
+
+        if (rem <= 0) {
+          fireTimeout(genSnapshot);
+          return;
+        }
+        rafId = requestAnimationFrame(tick);
+      };
+
+      rafId = requestAnimationFrame(tick);
+    }
+
+    return { start, stop };
+  })();
 
   function applyBoardPerspective(seatId) {
     Game.perspectiveSeat = seatId;
@@ -3786,7 +4099,7 @@
 
   function isLocallyControlled(pIdx) {
     const p = Game.players[pIdx];
-    return !!p && p.active && !p.isBot && p.ownerClientId === CLIENT_ID;
+    return !!p && p.active && !p.eliminated && !p.isBot && p.ownerClientId === CLIENT_ID;
   }
 
   function sleep(ms) {
@@ -3832,7 +4145,7 @@
             serverLanUrls = Array.isArray(data.lanUrls) ? data.lanUrls : [];
             if (pill) {
               pill.className = 'server-pill';
-              pill.textContent = serverPublicUrl ? 'Public Share Link Live' : 'Multi-Device Wi-Fi Ready';
+              pill.textContent = 'Online';
             }
             return true;
           }
@@ -3841,7 +4154,7 @@
       serverOnline = false;
       if (pill) {
         pill.className = 'server-pill offline';
-        pill.textContent = 'Single-Laptop Mode (run play.bat for friends)';
+        pill.textContent = 'Offline';
       }
       return false;
     }
@@ -3932,6 +4245,14 @@
           const payload = JSON.parse(ev.data);
           Game.pendingServerAction = false;
           animateServerMove(payload);
+        } catch (_) {}
+      });
+
+      es.addEventListener('TURN_TIMEOUT', (ev) => {
+        try {
+          const payload = JSON.parse(ev.data);
+          Game.pendingServerAction = false;
+          handleServerTurnTimeout(payload);
         } catch (_) {}
       });
 
@@ -4304,7 +4625,24 @@
     }
   }
 
+  function initSharedDice() {
+    const slot = document.getElementById('shared-dice-slot');
+    if (slot && !document.getElementById('shared-dice-cube')) {
+      slot.innerHTML = buildSharedDiceCubeHTML(Game.currentPlayer);
+    }
+    const tray = document.getElementById('shared-dice-tray');
+    if (tray && !tray.dataset.bound) {
+      tray.dataset.bound = '1';
+      tray.addEventListener('click', () => {
+        if (Game.phase === 'AWAITING_ROLL' && isLocallyControlled(Game.currentPlayer) && !Game.pendingServerAction) {
+          triggerRollAction();
+        }
+      });
+    }
+  }
+
   function buildCornerCards() {
+    initSharedDice();
     // Clear all 4 slots first so duplicate IDs never collide during perspective rotation!
     ['tl', 'tr', 'bl', 'br'].forEach((p) => {
       const el = document.getElementById(`slot-${p}`);
@@ -4320,70 +4658,48 @@
       { pos: 'br', seatId: (base + 3) % 4,     isRight: true,  isBottom: true  },
     ];
 
-    cornerSlots.forEach(({ pos, seatId: idx, isRight, isBottom }) => {
+    cornerSlots.forEach(({ pos, seatId: idx, isRight }) => {
       const meta = PLAYERS_META[idx];
       const slot = document.getElementById(`slot-${pos}`);
       const pState = Game.players[idx];
       const isMe = pState.active && pState.ownerClientId === CLIENT_ID && idx === base;
 
-      let badgeLabel = 'EMPTY';
+      let badgeLabel = '';
       let badgeClass = '';
       if (pState.active) {
-        if (pState.isBot) {
+        if (pState.eliminated) {
+          badgeLabel = 'LOST';
+        } else if (pState.isBot) {
           badgeLabel = 'BOT';
-        } else if (isMe && pState.isCaptain) {
-          badgeLabel = 'YOU • CAPTAIN';
-          badgeClass = 'captain';
         } else if (isMe) {
           badgeLabel = 'YOU';
           badgeClass = 'human';
-        } else if (pState.isCaptain) {
-          badgeLabel = 'CAPTAIN';
-          badgeClass = 'captain';
         } else {
-          badgeLabel = pState.ownerClientId === CLIENT_ID ? 'PLAYER' : 'ONLINE';
-          badgeClass = 'human';
+          badgeLabel = meta.colorName.toUpperCase();
         }
       }
 
-      const coinHTML = `
-        <div class="coin-bar ${isRight ? 'right' : ''} ${isBottom ? 'bottom' : ''}">
-          ${!isRight ? `<span class="coin-pill">${SVG_COINS}<span>${meta.coins}</span></span>` : ''}
-          <button class="role-badge ${badgeClass}" id="role-badge-${idx}" title="${pState.active ? 'Seat status' : 'Empty seat'}">
-            ${badgeLabel}
-          </button>
-          ${isRight ? `<span class="coin-pill"><span>${meta.coins}</span>${SVG_COINS}</span>` : ''}
-        </div>
-      `;
-
       const cardHTML = `
         <div class="player-card">
-          <div class="card-header ${isRight ? 'reverse' : ''}">
-            <div class="country-tag">
-              ${svgFlag(meta.flag)}
-              ${meta.country ? `<span>${meta.country}</span>` : ''}
+          <div class="lost-stamp">LOST</div>
+          <div class="card-body ${isRight ? 'reverse' : ''}" style="gap:8px;">
+            <div class="crest-col" style="width:52px; padding:5px 3px;">
+              <div class="pawn-crest" style="width:28px; height:32px;">${svgTokenPin(idx)}</div>
             </div>
-            ${SVG_GIFT}
-          </div>
-          <div class="card-body ${isRight ? 'reverse' : ''}">
-            <div class="crest-col">
-              <div class="pawn-crest">${svgTokenPin(idx)}</div>
-              <div class="player-name" id="pname-${idx}">${escapeHtml(pState.active ? pState.name : 'Empty Seat')}</div>
-            </div>
-            <div class="dice-col">
-              <div class="dice-tray" id="tray-${idx}" role="button" tabindex="0" aria-label="Roll dice for ${escapeHtml(pState.active ? pState.name : 'Empty Seat')}">
-                ${buildDiceCubeHTML(idx)}
-                <span class="roll-hint">ROLL</span>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; align-items:${isRight ? 'flex-end' : 'flex-start'};">
+              <div style="display:flex; align-items:center; gap:5px; max-width:100%; ${isRight ? 'flex-direction:row-reverse;' : ''}">
+                <div class="player-name" id="pname-${idx}" style="max-width:116px; text-align:${isRight ? 'right' : 'left'};">${escapeHtml(pState.active ? pState.name : '—')}</div>
+                <button class="role-badge ${badgeClass}" id="role-badge-${idx}" style="${badgeLabel ? '' : 'display:none;'}">${badgeLabel}</button>
               </div>
-              <div class="pip-row" id="pips-${idx}">
+              <div class="pip-row" id="pips-${idx}" title="Timeouts (5 = Lost)">
                 <span class="status-dot"></span>
                 <span class="status-dot"></span>
                 <span class="status-dot"></span>
                 <span class="status-dot"></span>
                 <span class="status-dot"></span>
               </div>
-              <div class="card-footer-meta">
-                <span class="lvl-badge">${meta.level}</span>
+              <div style="display:flex; align-items:center; gap:8px; width:100%; justify-content:space-between;">
+                <span class="timeout-label" id="to-cnt-${idx}">${pState.active ? '0/5' : ''}</span>
                 <span class="home-count-badge" id="home-cnt-${idx}">${pState.active ? '0/4' : '—'}</span>
               </div>
             </div>
@@ -4392,25 +4708,16 @@
       `;
 
       slot.innerHTML = `
-        <div class="player-wrap ${pState.active ? '' : 'is-inactive'}" id="pwrap-${idx}"
+        <div class="player-wrap ${pState.active ? '' : 'is-inactive'} ${pState.eliminated ? 'is-eliminated' : ''}" id="pwrap-${idx}"
              style="--p-main:${meta.main};--p-dark:${meta.dark};--p-light:${meta.light};--accent-glow:${meta.glow};">
-          ${!isBottom ? coinHTML : ''}
           ${cardHTML}
-          ${isBottom ? coinHTML : ''}
         </div>
       `;
-
-      // Bind dice tray click directly on this corner's element
-      slot.querySelector('.dice-tray').addEventListener('click', () => {
-        if (Game.currentPlayer === idx && Game.phase === 'AWAITING_ROLL' && isLocallyControlled(idx) && !Game.pendingServerAction) {
-          triggerRollAction();
-        }
-      });
 
       // Optional Bot assist toggle (offline single-laptop only)
       slot.querySelector('.role-badge').addEventListener('click', () => {
         if (RoomManager.serverOnline) return;
-        if (!Game.players[idx].active || Game.players[idx].ownerClientId !== CLIENT_ID) return;
+        if (!Game.players[idx].active || Game.players[idx].eliminated || Game.players[idx].ownerClientId !== CLIENT_ID) return;
         Game.players[idx].isBot = !Game.players[idx].isBot;
         updateCornerUI();
         if (Game.currentPlayer === idx) {
@@ -4466,6 +4773,7 @@
 
         el.classList.toggle('in-yard', step === -1);
         el.classList.toggle('finished', step === 56);
+        el.classList.toggle('eliminated', !!Game.players[p].eliminated);
 
         if (step === -1 || step === 56) {
           const [lx, ly] = stepToBoardPercent(p, t, step);
@@ -4551,7 +4859,7 @@
 
     const victims = [];
     for (let p = 0; p < 4; p++) {
-      if (p === movingPlayerIdx || !Game.players[p].active) continue;
+      if (p === movingPlayerIdx || !Game.players[p].active || Game.players[p].eliminated) continue;
       for (let t = 0; t < 4; t++) {
         const os = Game.players[p].tokens[t];
         if (os >= 0 && os <= 50 && stepToTrackIndex(p, os) === targetTrack) {
@@ -4646,10 +4954,12 @@
     setTimeout(() => div.remove(), 1400);
   }
 
-  // Preload AAA realistic armored Warrior King sprites so cutscenes launch with zero flicker
-  ['assets/king1.png', 'assets/king2.png'].forEach((src) => {
-    const pre = new Image();
-    pre.src = src;
+  // Preload all 8 pawn-color-matched AAA armored Warrior King sprites so cutscenes launch with zero flicker
+  ['blue', 'red', 'green', 'yellow'].forEach((ck) => {
+    ['king1', 'king2'].forEach((k) => {
+      const pre = new Image();
+      pre.src = `assets/${k}_${ck}.png`;
+    });
   });
 
   // 60FPS HTML5 Canvas VFX Engine — Scoped Directly ON the Ludo Board!
@@ -4941,6 +5251,12 @@
     kingA.style.setProperty('--fighter-glow', atkMeta.glow);
     kingD.style.setProperty('--fighter-glow', defMeta.glow);
 
+    // Match each Warrior King's armor suit & cape directly to their pawn color!
+    const kingAImg = document.getElementById('board-king-a-img');
+    const kingDImg = document.getElementById('board-king-d-img');
+    if (kingAImg) kingAImg.src = `assets/king1_${atkMeta.colorKey}.png`;
+    if (kingDImg) kingDImg.src = `assets/king2_${defMeta.colorKey}.png`;
+
     // Hide the 2 small pawns while they have transformed into the huge armored Warrior Kings!
     if (atkPawnEl) atkPawnEl.style.opacity = '0';
     if (defPawnEl) defPawnEl.style.opacity = '0';
@@ -5181,7 +5497,7 @@
     if (defPawnEl) defPawnEl.style.opacity = '';
 
     showBurstAt(cx, cy);
-    showToast(victims.length > 1 ? 'KING DOUBLE KILL! +1 EXTRA DICE ROLL' : 'KING KILL! +1 EXTRA DICE ROLL', 'danger');
+    showToast(victims.length > 1 ? 'DOUBLE KILL!' : 'KILL!', 'danger');
 
     victims.forEach(({ p, t }) => {
       Game.players[p].capturedCount++;
@@ -5222,63 +5538,104 @@
   }
 
   function updateCornerUI() {
+    initSharedDice();
     for (let i = 0; i < 4; i++) {
       const wrap = document.getElementById(`pwrap-${i}`);
-      const tray = document.getElementById(`tray-${i}`);
-      const cube = document.getElementById(`dice-${i}`);
       const yard = document.getElementById(`yard-${i}`);
       const badge = document.getElementById(`role-badge-${i}`);
       const homeCnt = document.getElementById(`home-cnt-${i}`);
+      const toCnt = document.getElementById(`to-cnt-${i}`);
       const pname = document.getElementById(`pname-${i}`);
       const pips = document.getElementById(`pips-${i}`);
       const p = Game.players[i];
       if (!wrap) continue;
 
       const isActiveSeat = p.active;
-      const isTurn = isActiveSeat && Game.currentPlayer === i && Game.phase !== 'GAME_OVER' && Game.phase !== 'LOBBY';
-      const canRoll = isTurn && Game.phase === 'AWAITING_ROLL' && isLocallyControlled(i) && !Game.pendingServerAction;
+      const isElim = !!p.eliminated;
+      const isTurn = isActiveSeat && !isElim && Game.currentPlayer === i && Game.phase !== 'GAME_OVER' && Game.phase !== 'LOBBY';
       const finished = p.tokens.filter((s) => s === 56).length;
       const isMeBottomLeft = isActiveSeat && p.ownerClientId === CLIENT_ID && i === Game.perspectiveSeat;
 
       wrap.classList.toggle('is-inactive', !isActiveSeat);
+      wrap.classList.toggle('is-eliminated', isActiveSeat && isElim);
       wrap.classList.toggle('is-active', isTurn);
-      yard.classList.toggle('inactive', !isActiveSeat);
+      yard.classList.toggle('inactive', !isActiveSeat || isElim);
       yard.classList.toggle('active-turn', isTurn);
-      tray.classList.toggle('can-roll', canRoll);
-      cube.classList.toggle('visible', isTurn);
-
-      if (!cube.classList.contains('rolling')) {
-        cube.style.transform = FACE_ROTATIONS[p.lastFace || 1];
-      }
 
       badge.className = 'role-badge';
       if (!isActiveSeat) {
-        badge.textContent = 'EMPTY';
-      } else if (p.isBot) {
-        badge.textContent = 'BOT';
-      } else if (isMeBottomLeft && p.isCaptain) {
-        badge.textContent = 'YOU • CAPTAIN';
-        badge.classList.add('captain');
-      } else if (isMeBottomLeft) {
-        badge.textContent = 'YOU';
-        badge.classList.add('human');
-      } else if (p.isCaptain) {
-        badge.textContent = 'CAPTAIN';
-        badge.classList.add('captain');
+        badge.style.display = 'none';
       } else {
-        badge.textContent = p.ownerClientId === CLIENT_ID ? 'PLAYER' : 'ONLINE';
-        badge.classList.add('human');
+        badge.style.display = '';
+        if (isElim) {
+          badge.textContent = 'LOST';
+        } else if (p.isBot) {
+          badge.textContent = 'BOT';
+        } else if (isMeBottomLeft) {
+          badge.textContent = 'YOU';
+          badge.classList.add('human');
+        } else {
+          badge.textContent = PLAYERS_META[i].colorName.toUpperCase();
+        }
       }
 
-      homeCnt.textContent = isActiveSeat ? `${finished}/4` : '—';
-      pname.textContent = isActiveSeat ? p.name : 'Empty Seat';
+      if (homeCnt) homeCnt.textContent = isActiveSeat ? `${finished}/4` : '—';
+      if (toCnt) {
+        const tc = p.timeouts || 0;
+        toCnt.textContent = isActiveSeat ? `${tc}/${MAX_TIMEOUTS}` : '';
+        toCnt.classList.toggle('warn', tc >= 3);
+      }
+      if (pname) pname.textContent = isActiveSeat ? p.name : '—';
 
-      // Highlight consecutive sixes on the 5-dot pip row for the active player
-      const dots = pips.querySelectorAll('.status-dot');
-      dots.forEach((dot, dIdx) => {
-        dot.classList.toggle('dim', !isActiveSeat);
-        dot.classList.toggle('six-lit', isTurn && dIdx < Game.consecutiveSixes);
-      });
+      // 5 Timeout Dots: green = remaining chances, red = missed timeouts (5/5 = LOST!)
+      if (pips) {
+        const tc = p.timeouts || 0;
+        const dots = pips.querySelectorAll('.status-dot');
+        dots.forEach((dot, dIdx) => {
+          dot.classList.toggle('dim', !isActiveSeat);
+          dot.classList.toggle('timeout-lost', isActiveSeat && dIdx < tc);
+          dot.classList.remove('six-lit');
+        });
+      }
+    }
+
+    // Update the ONE fixed shared dice dock for the current active player
+    const dock = document.getElementById('shared-dice-dock');
+    const tray = document.getElementById('shared-dice-tray');
+    const cube = document.getElementById('shared-dice-cube');
+    const dot = document.getElementById('shared-turn-dot');
+    const nameEl = document.getElementById('shared-turn-name');
+    const curIdx = Game.currentPlayer;
+    const curPlayer = Game.players[curIdx];
+    const curMeta = PLAYERS_META[curIdx] || PLAYERS_META[2];
+    const canRoll = !!curPlayer && curPlayer.active && !curPlayer.eliminated
+      && Game.phase === 'AWAITING_ROLL' && isLocallyControlled(curIdx) && !Game.pendingServerAction;
+
+    if (dock) {
+      dock.style.setProperty('--p-main', curMeta.main);
+      dock.style.setProperty('--p-dark', curMeta.dark);
+      dock.style.setProperty('--p-light', curMeta.light);
+      dock.style.setProperty('--accent-glow', curMeta.glow);
+      dock.classList.toggle('can-roll', canRoll);
+    }
+    if (tray) {
+      tray.classList.toggle('can-roll', canRoll);
+    }
+    if (dot) {
+      dot.style.background = curMeta.main;
+      dot.style.boxShadow = `0 0 8px ${curMeta.main}`;
+    }
+    if (nameEl) {
+      nameEl.textContent = (curPlayer && curPlayer.active) ? curPlayer.name : '—';
+    }
+    if (cube) {
+      cube.style.setProperty('--die-bg-1', curMeta.dieBg1);
+      cube.style.setProperty('--die-bg-2', curMeta.dieBg2);
+      cube.style.setProperty('--die-pip', curMeta.diePip);
+      cube.classList.add('visible');
+      if (!cube.classList.contains('rolling')) {
+        cube.style.transform = FACE_ROTATIONS[Game.lastRoll || 1];
+      }
     }
   }
 
@@ -5313,7 +5670,12 @@
   // Authoritative SSE Roll Animation (Multi-Device Mode)
   async function animateServerRoll(payload) {
     const gen = Game.matchGen;
-    const { pIdx, face, outcome, legalTokens, rngStats, nextCurrentPlayer, nextPhase, consecutiveSixes } = payload;
+    const {
+      pIdx, face, outcome, legalTokens, rngStats,
+      nextCurrentPlayer, nextPhase, consecutiveSixes, turnDeadline,
+    } = payload;
+
+    TurnTimer.stop(true);
 
     // Sync authoritative server RNG telemetry
     if (rngStats) {
@@ -5329,15 +5691,17 @@
     Game.players[pIdx].lastFace = face;
     updateCornerUI();
 
-    const cube = document.getElementById(`dice-${pIdx}`);
-    cube.classList.add('visible', 'rolling');
+    const cube = document.getElementById('shared-dice-cube');
+    if (cube) cube.classList.add('visible', 'rolling');
     SoundFX.diceRattle();
 
     await sleep(460);
     if (gen !== Game.matchGen) return;
 
-    cube.classList.remove('rolling');
-    cube.style.transform = FACE_ROTATIONS[face];
+    if (cube) {
+      cube.classList.remove('rolling');
+      cube.style.transform = FACE_ROTATIONS[face];
+    }
     SoundFX.diceLand(face === 6);
     refreshRNGModalIfOpen();
 
@@ -5345,26 +5709,27 @@
       Game.consecutiveSixes = 3;
       updateCornerUI();
       SoundFX.forfeitBuzz();
-      showToast('Three 6s! Turn Forfeited', 'danger');
-      await sleep(950);
+      showToast('3×6 OUT', 'danger');
+      await sleep(850);
       if (gen !== Game.matchGen) return;
       Game.consecutiveSixes = consecutiveSixes;
       Game.currentPlayer = nextCurrentPlayer;
       Game.phase = nextPhase;
       Game.legalTokenIndices = [];
       updateCornerUI();
+      TurnTimer.start({ isServer: true, serverDeadline: turnDeadline });
       return;
     }
 
     if (outcome === 'NO_MOVES') {
-      showToast(`${Game.players[pIdx].name}: No Legal Moves`);
-      await sleep(750);
+      await sleep(620);
       if (gen !== Game.matchGen) return;
       Game.consecutiveSixes = consecutiveSixes;
       Game.currentPlayer = nextCurrentPlayer;
       Game.phase = nextPhase;
       Game.legalTokenIndices = [];
       updateCornerUI();
+      TurnTimer.start({ isServer: true, serverDeadline: turnDeadline });
       return;
     }
 
@@ -5372,6 +5737,7 @@
     Game.legalTokenIndices = legalTokens;
     Game.phase = 'CHOOSING_TOKEN';
     updateCornerUI();
+    TurnTimer.start({ isServer: true, serverDeadline: turnDeadline });
 
     if (isLocallyControlled(pIdx)) {
       setMovableHighlights(pIdx, legalTokens);
@@ -5389,9 +5755,10 @@
     const {
       pIdx, tokenIdx, roll, fromStep, toStep, captured,
       reachedHome, winner, nextCurrentPlayer, nextPhase,
-      consecutiveSixes, tokens, captures,
+      consecutiveSixes, tokens, captures, timeouts, eliminated, turnDeadline,
     } = payload;
 
+    TurnTimer.stop(true);
     Game.phase = 'ANIMATING';
     setMovableHighlights(pIdx, []);
 
@@ -5441,21 +5808,25 @@
       const [hx, hy] = stepToBoardPercent(pIdx, tokenIdx, 56);
       showBurstAt(hx, hy);
       if (winner === null) {
-        showToast('Entered Home! +1 Extra Dice Roll', 'success');
+        showToast('HOME!', 'success');
       }
     } else if (didCapture) {
       await playKingKillAnimation(pIdx, tokenIdx, captured, toStep, gen);
       if (gen !== Game.matchGen) return;
-    } else if (roll === 6) {
-      showToast('Rolled 6! +1 Extra Dice Roll', 'success');
     }
 
-    // Sync exact server token & capture state
+    // Sync exact server token, capture & timeout state
     if (tokens) {
       for (let p = 0; p < 4; p++) Game.players[p].tokens = tokens[p].slice();
     }
     if (captures) {
       for (let p = 0; p < 4; p++) Game.players[p].captures = captures[p];
+    }
+    if (timeouts) {
+      for (let p = 0; p < 4; p++) Game.players[p].timeouts = timeouts[p];
+    }
+    if (eliminated) {
+      for (let p = 0; p < 4; p++) Game.players[p].eliminated = !!eliminated[p];
     }
 
     layoutAllTokens();
@@ -5473,18 +5844,70 @@
     Game.phase = nextPhase;
     Game.legalTokenIndices = [];
     updateCornerUI();
+    TurnTimer.start({ isServer: true, serverDeadline: turnDeadline });
+  }
+
+  // Authoritative SSE Turn Timeout Handler (10s expired; 5 timeouts = LOST!)
+  async function handleServerTurnTimeout(payload) {
+    const gen = Game.matchGen;
+    const {
+      pIdx, timeoutCount, justEliminated, timeouts, eliminated,
+      winner, nextCurrentPlayer, nextPhase, consecutiveSixes, tokens, turnDeadline,
+    } = payload;
+
+    TurnTimer.stop(true);
+    setMovableHighlights(pIdx, []);
+
+    if (timeouts) {
+      for (let p = 0; p < 4; p++) Game.players[p].timeouts = timeouts[p];
+    }
+    if (eliminated) {
+      for (let p = 0; p < 4; p++) Game.players[p].eliminated = !!eliminated[p];
+    }
+    if (tokens) {
+      for (let p = 0; p < 4; p++) Game.players[p].tokens = tokens[p].slice();
+    }
+
+    SoundFX.forfeitBuzz();
+    layoutAllTokens();
+    updateCornerUI();
+
+    const pName = Game.players[pIdx] ? Game.players[pIdx].name : 'Player';
+    if (justEliminated) {
+      showToast(`${pName} LOST (5/5)`, 'danger');
+    } else {
+      showToast(`${pName} ${timeoutCount}/${MAX_TIMEOUTS}`, 'danger');
+    }
+
+    if (winner !== null) {
+      await sleep(550);
+      if (gen !== Game.matchGen) return;
+      triggerVictory(winner, 'timeout');
+      return;
+    }
+
+    await sleep(450);
+    if (gen !== Game.matchGen) return;
+
+    Game.consecutiveSixes = consecutiveSixes || 0;
+    Game.currentPlayer = nextCurrentPlayer;
+    Game.phase = nextPhase;
+    Game.legalTokenIndices = [];
+    updateCornerUI();
+    TurnTimer.start({ isServer: true, serverDeadline: turnDeadline });
   }
 
   // Offline / Local Roll Handler
   async function handleLocalRoll(forcedFace = null, fromRemote = false) {
     if (Game.phase !== 'AWAITING_ROLL') return;
+    TurnTimer.stop(true);
     const gen = Game.matchGen;
     const pIdx = Game.currentPlayer;
     Game.phase = 'ROLLING';
     updateCornerUI();
 
-    const cube = document.getElementById(`dice-${pIdx}`);
-    cube.classList.add('visible', 'rolling');
+    const cube = document.getElementById('shared-dice-cube');
+    if (cube) cube.classList.add('visible', 'rolling');
     SoundFX.diceRattle();
 
     const face = forcedFace !== null ? forcedFace : FairRNG.rollForPlayer(pIdx);
@@ -5502,8 +5925,10 @@
     await sleep(460);
     if (gen !== Game.matchGen) return;
 
-    cube.classList.remove('rolling');
-    cube.style.transform = FACE_ROTATIONS[face];
+    if (cube) {
+      cube.classList.remove('rolling');
+      cube.style.transform = FACE_ROTATIONS[face];
+    }
     SoundFX.diceLand(face === 6);
     refreshRNGModalIfOpen();
 
@@ -5512,8 +5937,8 @@
       updateCornerUI();
       if (Game.consecutiveSixes >= 3) {
         SoundFX.forfeitBuzz();
-        showToast('Three 6s! Turn Forfeited', 'danger');
-        await sleep(950);
+        showToast('3×6 OUT', 'danger');
+        await sleep(850);
         if (gen !== Game.matchGen) return;
         advanceTurn();
         return;
@@ -5524,8 +5949,7 @@
     Game.legalTokenIndices = legal;
 
     if (legal.length === 0) {
-      showToast(`${Game.players[pIdx].name}: No Legal Moves`);
-      await sleep(750);
+      await sleep(620);
       if (gen !== Game.matchGen) return;
       advanceTurn();
       return;
@@ -5538,6 +5962,7 @@
       scheduleBotPick(gen);
     } else if (isLocallyControlled(pIdx)) {
       setMovableHighlights(pIdx, legal);
+      TurnTimer.start({ isServer: false });
       if (legal.length === 1) {
         await sleep(300);
         if (gen !== Game.matchGen || Game.phase !== 'CHOOSING_TOKEN') return;
@@ -5556,6 +5981,7 @@
 
   // Offline / Local Move Execution
   async function executeLocalTokenMove(pIdx, tokenIdx, fromRemote = false) {
+    TurnTimer.stop(true);
     const gen = Game.matchGen;
     Game.phase = 'ANIMATING';
     setMovableHighlights(pIdx, []);
@@ -5619,7 +6045,7 @@
         triggerVictory(pIdx);
         return;
       }
-      showToast('Entered Home! +1 Extra Dice Roll', 'success');
+      showToast('HOME!', 'success');
     } else {
       const victims = findCapturableOpponents(pIdx, landedStep);
       if (victims.length > 0) {
@@ -5636,9 +6062,6 @@
     // Extra dice roll on: SIX, KILL (capture), or ENTER TO HOME
     const extraDiceRoll = (roll === 6) || didCapture || reachedHome;
     if (extraDiceRoll) {
-      if (roll === 6 && !didCapture && !reachedHome) {
-        showToast('Rolled 6! +1 Extra Dice Roll', 'success');
-      }
       if (roll !== 6) {
         Game.consecutiveSixes = 0;
       }
@@ -5646,6 +6069,8 @@
       updateCornerUI();
       if (Game.players[pIdx].isBot && Game.players[pIdx].ownerClientId === CLIENT_ID) {
         scheduleBotRoll(gen);
+      } else {
+        TurnTimer.start({ isServer: false });
       }
     } else {
       await sleep(160);
@@ -5654,11 +6079,56 @@
     }
   }
 
+  async function handleLocalTurnTimeout(gen) {
+    if (gen !== Game.matchGen) return;
+    if (Game.phase !== 'AWAITING_ROLL' && Game.phase !== 'CHOOSING_TOKEN') return;
+
+    const pIdx = Game.currentPlayer;
+    const p = Game.players[pIdx];
+    if (!p || !p.active || p.eliminated) return;
+
+    setMovableHighlights(pIdx, []);
+    p.timeouts = (p.timeouts || 0) + 1;
+    SoundFX.forfeitBuzz();
+
+    if (p.timeouts >= MAX_TIMEOUTS) {
+      p.eliminated = true;
+      for (let t = 0; t < 4; t++) {
+        if (p.tokens[t] !== 56) p.tokens[t] = -1;
+      }
+      layoutAllTokens();
+      updateCornerUI();
+      showToast(`${p.name} LOST (5/5)`, 'danger');
+
+      const alive = Game.activeSeats.filter((s) => !Game.players[s].eliminated);
+      if (alive.length <= 1) {
+        await sleep(550);
+        if (gen !== Game.matchGen) return;
+        if (alive.length === 1) triggerVictory(alive[0], 'timeout');
+        return;
+      }
+    } else {
+      updateCornerUI();
+      showToast(`${p.name} ${p.timeouts}/${MAX_TIMEOUTS}`, 'danger');
+    }
+
+    await sleep(450);
+    if (gen !== Game.matchGen) return;
+    advanceTurn();
+  }
+
   function advanceTurn() {
+    TurnTimer.stop(true);
     Game.consecutiveSixes = 0;
-    const curPos = Game.activeSeats.indexOf(Game.currentPlayer);
-    const nextPos = (curPos + 1) % Game.activeSeats.length;
-    Game.currentPlayer = Game.activeSeats[nextPos];
+    const total = Game.activeSeats.length;
+    const curPos = Math.max(0, Game.activeSeats.indexOf(Game.currentPlayer));
+    for (let step = 1; step <= total; step++) {
+      const candidate = Game.activeSeats[(curPos + step) % total];
+      if (!Game.players[candidate].eliminated) {
+        Game.currentPlayer = candidate;
+        break;
+      }
+    }
     Game.phase = 'AWAITING_ROLL';
     Game.legalTokenIndices = [];
     setMovableHighlights(Game.currentPlayer, []);
@@ -5666,6 +6136,8 @@
 
     if (Game.players[Game.currentPlayer].isBot && Game.players[Game.currentPlayer].ownerClientId === CLIENT_ID) {
       scheduleBotRoll(Game.matchGen);
+    } else {
+      TurnTimer.start({ isServer: false });
     }
   }
 
@@ -5739,7 +6211,8 @@
     confettiAnimId = requestAnimationFrame(frame);
   }
 
-  function triggerVictory(winnerIdx) {
+  function triggerVictory(winnerIdx, reason = 'home') {
+    TurnTimer.stop(true);
     Game.phase = 'GAME_OVER';
     updateCornerUI();
     const winWrap = document.getElementById(`pwrap-${winnerIdx}`);
@@ -5751,16 +6224,16 @@
     const meta = PLAYERS_META[winnerIdx];
     document.getElementById('win-headline').textContent = `${winner.name} Wins!`;
     document.getElementById('win-subline').textContent =
-      `${meta.colorName} brought all 4 tokens home in ${FairRNG.state.total} fair match rolls (Team ${Game.roomCode || '—'}).`;
+      reason === 'timeout' ? `${meta.colorName} won by timeout` : meta.colorName;
 
     const standings = Game.players
       .filter((p) => p.active)
       .map((p) => {
         const finished = p.tokens.filter((s) => s === 56).length;
-        const progress = p.tokens.reduce((acc, s) => acc + (s < 0 ? 0 : s + 1), 0);
+        const progress = p.eliminated ? -1 : p.tokens.reduce((acc, s) => acc + (s < 0 ? 0 : s + 1), 0);
         return { p, finished, progress };
       })
-      .sort((a, b) => (b.finished - a.finished) || (b.progress - a.progress));
+      .sort((a, b) => (Number(a.p.eliminated) - Number(b.p.eliminated)) || (b.finished - a.finished) || (b.progress - a.progress));
 
     const medals = ['#1', '#2', '#3', '#4'];
     const list = document.getElementById('podium-list');
@@ -5773,7 +6246,7 @@
           <strong>${escapeHtml(entry.p.name)}</strong>
         </div>
         <div style="font-size:12px;color:#cfe2ff;">
-          ${entry.finished}/4 Home &bull; ${entry.p.captures} Kills
+          ${entry.p.eliminated ? '<span style="color:#ff7e85;font-weight:800;">LOST (5/5)</span>' : `${entry.finished}/4 &bull; ${entry.p.captures} Kills`}
         </div>
       </div>`;
     }).join('');
@@ -5873,8 +6346,11 @@
   }
 
   function showHomeScreen(view = 'main') {
+    TurnTimer.stop(true);
     clearDuelFX();
     document.getElementById('demo-controls').classList.remove('visible');
+    const dock = document.getElementById('shared-dice-dock');
+    if (dock) dock.style.visibility = '';
     if (Game.speed < 1) Game.speed = 1;
     document.getElementById('home-screen').classList.remove('hidden');
     showLobbyView(view);
@@ -5988,19 +6464,15 @@
     const isCaptain = room.captainClientId === CLIENT_ID;
 
     document.getElementById('waiting-code-display').textContent = room.code;
-    document.getElementById('waiting-progress-label').textContent =
-      `${joined} / ${target} Members Joined (including Captain)`;
-    document.getElementById('waiting-status-tag').textContent =
-      isFull ? 'All Members Ready!' : `Need ${remaining} more`;
+    document.getElementById('waiting-progress-label').textContent = `${joined} / ${target}`;
+    document.getElementById('waiting-status-tag').textContent = isFull ? 'Ready' : `Need ${remaining}`;
     document.getElementById('waiting-status-tag').style.color = isFull ? '#8dffbe' : '#ffe46e';
     document.getElementById('waiting-progress-fill').style.width = `${(joined / target) * 100}%`;
 
     const shareBox = document.getElementById('share-link-box');
     if (RoomManager.serverOnline) {
       shareBox.style.display = 'block';
-      document.getElementById('share-link-heading').textContent = RoomManager.serverPublicUrl
-        ? 'Public Share Link (Anyone on Internet can open & pick color/name):'
-        : 'Share Link (Friends on Same Wi-Fi can open & pick color/name):';
+      document.getElementById('share-link-heading').textContent = 'Invite Link';
       document.getElementById('share-url-text').textContent = RoomManager.getShareJoinUrl(room.code);
     } else {
       shareBox.style.display = 'none';
@@ -6017,17 +6489,17 @@
           <div style="display:flex;align-items:center;gap:9px;">
             <span class="seat-swatch" style="background:${m.main};width:18px;height:18px;"></span>
             <strong>${escapeHtml(member.name)}</strong>
-            <span style="font-size:11px;color:#9dc0f5;">(${m.colorName}${isYou ? ' • You' : ''})</span>
+            <span style="font-size:11px;color:#9dc0f5;">${m.colorName}${isYou ? ' (You)' : ''}</span>
           </div>
-          ${member.isCaptain ? '<span class="tag-captain">CAPTAIN</span>' : '<span class="tag-joined">JOINED</span>'}
+          ${member.isCaptain ? '<span class="tag-captain">HOST</span>' : '<span class="tag-joined">IN</span>'}
         </div>`);
       } else {
         slotsHTML.push(`<div class="roster-slot waiting">
           <div style="display:flex;align-items:center;gap:9px;">
             <span class="seat-swatch" style="background:#5a78b5;width:18px;height:18px;opacity:0.45;"></span>
-            <span style="color:#a9c2eb;">Player #${idx + 1} &mdash; Open (can choose color &amp; name)</span>
+            <span style="color:#a9c2eb;">Player ${idx + 1}</span>
           </div>
-          <span class="tag-wait">WAITING</span>
+          <span class="tag-wait">OPEN</span>
         </div>`);
       }
     }
@@ -6078,21 +6550,22 @@
     if (!isFull) {
       launchBtn.disabled = true;
       launchBtn.classList.remove('ready-glow');
-      launchBtn.textContent = `Waiting for ${remaining} more member${remaining > 1 ? 's' : ''} (${joined}/${target})`;
+      launchBtn.textContent = `Waiting (${joined}/${target})`;
     } else if (isCaptain) {
       launchBtn.disabled = false;
       launchBtn.classList.add('ready-glow');
-      launchBtn.textContent = `All ${target}/${target} Joined — Start Game!`;
+      launchBtn.textContent = 'Start Game';
     } else {
       launchBtn.disabled = true;
       launchBtn.classList.remove('ready-glow');
-      launchBtn.textContent = `All ${target}/${target} Joined — Waiting for Captain to Start...`;
+      launchBtn.textContent = 'Waiting for Host...';
     }
   }
 
   function launchMatchFromRoom(room) {
     if (!room || room.members.length !== room.targetCount) return;
 
+    TurnTimer.stop(true);
     lastOfflineConfig = null;
     Game.matchGen++;
     Game.pendingServerAction = false;
@@ -6121,6 +6594,8 @@
       p.tokens = [-1, -1, -1, -1];
       p.captures = 0;
       p.capturedCount = 0;
+      p.timeouts = (room.match && room.match.timeouts) ? (room.match.timeouts[member.seatId] || 0) : 0;
+      p.eliminated = (room.match && room.match.eliminated) ? !!room.match.eliminated[member.seatId] : false;
       p.lastFace = 1;
     });
 
@@ -6139,19 +6614,22 @@
 
     const pill = document.getElementById('btn-team-pill');
     pill.style.display = 'inline-flex';
-    pill.textContent = `Team: ${room.code} • ${room.targetCount}P`;
+    pill.textContent = `${room.code}`;
 
     hideHomeScreen();
     closeModal('modal-win');
     buildCornerCards();
     buildTokensDOM();
     updateCornerUI();
-    showToast(`Team ${room.code} Started! ${Game.players[Game.currentPlayer].name} Goes First`, 'success');
+
+    const srvDeadline = room.match && room.match.turnDeadline ? room.match.turnDeadline : null;
+    TurnTimer.start({ isServer: !!RoomManager.serverOnline, serverDeadline: srvDeadline });
   }
 
   // Launch vs Fair Bots OR Local Pass & Play (with player-chosen colors & unbiased CSPRNG!)
   function launchOfflineMatch(config) {
     // config: { mode: 'bots' | 'local', count: 2..4, seats: [...], names: [...] }
+    TurnTimer.stop(true);
     lastOfflineConfig = config;
     RoomManager.resetRoom();
     Game.matchGen++;
@@ -6175,11 +6653,13 @@
       p.active = true;
       p.isCaptain = idx === 0;
       p.isBot = config.mode === 'bots' ? idx > 0 : false;
-      p.name = (config.names[idx] || '').trim() || (p.isBot ? `Fair Bot ${idx}` : `Player ${idx + 1}`);
+      p.name = (config.names[idx] || '').trim() || (p.isBot ? `Bot ${idx}` : `Player ${idx + 1}`);
       p.ownerClientId = CLIENT_ID;
       p.tokens = [-1, -1, -1, -1];
       p.captures = 0;
       p.capturedCount = 0;
+      p.timeouts = 0;
+      p.eliminated = false;
       p.lastFace = 1;
     });
 
@@ -6195,17 +6675,18 @@
 
     const pill = document.getElementById('btn-team-pill');
     pill.style.display = 'inline-flex';
-    pill.textContent = config.mode === 'bots' ? `vs Fair Bots • ${config.count}P` : `Pass & Play • ${config.count}P`;
+    pill.textContent = config.mode === 'bots' ? `vs Bot • ${config.count}P` : `${config.count}P`;
 
     hideHomeScreen();
     closeModal('modal-win');
     buildCornerCards();
     buildTokensDOM();
     updateCornerUI();
-    showToast(`${Game.players[Game.currentPlayer].name} Goes First (Fair Random Draw)`, 'success');
 
     if (Game.players[Game.currentPlayer].isBot) {
       scheduleBotRoll(Game.matchGen);
+    } else {
+      TurnTimer.start({ isServer: false });
     }
   }
 
@@ -6259,6 +6740,7 @@
   let demoSlowMo = false;
 
   async function runKillDemo() {
+    TurnTimer.stop(true);
     Game.matchGen++;
     clearDuelFX();
     const gen = Game.matchGen;
@@ -6289,19 +6771,20 @@
 
     const pill = document.getElementById('btn-team-pill');
     pill.style.display = 'inline-flex';
-    pill.textContent = 'King Kill Demo';
+    pill.textContent = 'Demo';
 
-    document.getElementById('btn-demo-color').textContent = `Color: ${PLAYERS_META[demoKingSeat].colorName}`;
+    document.getElementById('btn-demo-color').textContent = PLAYERS_META[demoKingSeat].colorName;
     document.getElementById('btn-demo-slow').classList.toggle('active', demoSlowMo);
     document.getElementById('demo-controls').classList.add('visible');
+    const dock = document.getElementById('shared-dice-dock');
+    if (dock) dock.style.visibility = 'hidden';
 
     hideHomeScreen();
     buildCornerCards();
     buildTokensDOM();
     updateCornerUI();
 
-    showToast('Watch: Pawn → Human King → Knife Kill → Pawn!', 'success');
-    await sleep(520);
+    await sleep(420);
     if (gen !== Game.matchGen) return;
 
     // Hop 3 steps right onto the enemy pawn
@@ -6587,13 +7070,13 @@
 
   document.getElementById('btn-speed').addEventListener('click', (e) => {
     Game.speed = Game.speed === 1 ? 2 : 1;
-    e.currentTarget.textContent = `${Game.speed}× Speed`;
+    e.currentTarget.textContent = `${Game.speed}×`;
     e.currentTarget.classList.toggle('active', Game.speed === 2);
   });
 
   document.getElementById('btn-sound').addEventListener('click', (e) => {
     SoundFX.enabled = !SoundFX.enabled;
-    e.currentTarget.textContent = SoundFX.enabled ? 'Sound On' : 'Sound Off';
+    e.currentTarget.textContent = SoundFX.enabled ? 'Sound' : 'Muted';
     e.currentTarget.classList.toggle('active', SoundFX.enabled);
   });
 

@@ -22,6 +22,8 @@ const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const MAX_VALID_D6 = Math.floor(0x100000000 / 6) * 6; // 4294967292 (zero modulo bias)
 
 const COLOR_NAMES = ['Blue', 'Red', 'Green', 'Yellow'];
+const TURN_TIMEOUT_MS = 10000;
+const MAX_TIMEOUTS = 5;
 
 // In-memory active rooms: code -> room object
 const rooms = new Map();
@@ -128,7 +130,86 @@ function pickAvailableSeat(room, preferredSeat) {
   return -1;
 }
 
+function clearTurnTimeout(room) {
+  if (room && room.turnTimer) {
+    clearTimeout(room.turnTimer);
+    room.turnTimer = null;
+  }
+}
+
+function getAliveSeats(match) {
+  return match.activeSeats.filter((s) => !match.eliminated[s]);
+}
+
+function scheduleTurnTimeout(room, animDelayMs = 0) {
+  clearTurnTimeout(room);
+  const m = room && room.match;
+  if (!room || !room.started || !m || m.phase === 'GAME_OVER') return;
+  m.turnSeq = (m.turnSeq || 0) + 1;
+  const expectedMatchId = m.matchId;
+  const expectedSeq = m.turnSeq;
+  const delay = Math.max(0, Number(animDelayMs) || 0);
+  m.turnAnimDelayMs = delay;
+  m.turnDurationMs = TURN_TIMEOUT_MS;
+  m.turnDeadline = Date.now() + delay + TURN_TIMEOUT_MS;
+
+  room.turnTimer = setTimeout(() => {
+    handleServerTurnTimeout(room, expectedMatchId, expectedSeq);
+  }, delay + TURN_TIMEOUT_MS);
+}
+
+function handleServerTurnTimeout(room, expectedMatchId, expectedSeq) {
+  const m = room && room.match;
+  if (!room || !room.started || !m) return;
+  if (m.matchId !== expectedMatchId || m.turnSeq !== expectedSeq) return;
+  if (m.phase !== 'AWAITING_ROLL' && m.phase !== 'CHOOSING_TOKEN') return;
+
+  const pIdx = m.currentPlayer;
+  m.timeouts[pIdx] = (m.timeouts[pIdx] || 0) + 1;
+  let justEliminated = false;
+
+  if (m.timeouts[pIdx] >= MAX_TIMEOUTS) {
+    m.eliminated[pIdx] = true;
+    justEliminated = true;
+    // Clear eliminated player's pawns off the track
+    for (let t = 0; t < 4; t++) {
+      if (m.tokens[pIdx][t] !== 56) m.tokens[pIdx][t] = -1;
+    }
+  }
+
+  const alive = getAliveSeats(m);
+  let animDelayMs = 600;
+  if (alive.length <= 1) {
+    m.winner = alive.length === 1 ? alive[0] : null;
+    m.phase = 'GAME_OVER';
+    m.legalTokens = [];
+    m.turnDeadline = null;
+    clearTurnTimeout(room);
+  } else {
+    advanceTurn(m);
+    scheduleTurnTimeout(room, animDelayMs);
+  }
+
+  broadcastSSE(room, 'TURN_TIMEOUT', {
+    pIdx,
+    timeoutCount: m.timeouts[pIdx],
+    maxTimeouts: MAX_TIMEOUTS,
+    justEliminated,
+    timeouts: m.timeouts,
+    eliminated: m.eliminated,
+    winner: m.winner,
+    nextCurrentPlayer: m.currentPlayer,
+    nextPhase: m.phase,
+    consecutiveSixes: m.consecutiveSixes,
+    tokens: m.tokens,
+    turnDeadline: m.turnDeadline,
+    turnDurationMs: TURN_TIMEOUT_MS,
+    animDelayMs,
+  });
+}
+
 function initMatchState(room) {
+  clearTurnTimeout(room);
   // Preserve exact clockwise turn order across the colors actually chosen by the players
   const chosenSet = new Set(room.members.map((m) => m.seatId));
   const activeSeats = [0, 1, 2, 3].filter((s) => chosenSet.has(s));
@@ -145,6 +226,7 @@ function initMatchState(room) {
   room.started = true;
   room.match = {
     matchId: (room.match ? room.match.matchId : 0) + 1,
+    turnSeq: 0,
     activeSeats,
     currentPlayer: firstSeat,
     phase: 'AWAITING_ROLL', // 'AWAITING_ROLL' | 'CHOOSING_TOKEN' | 'GAME_OVER'
@@ -153,9 +235,15 @@ function initMatchState(room) {
     legalTokens: [],
     tokens,
     captures: [0, 0, 0, 0],
+    timeouts: [0, 0, 0, 0],
+    eliminated: [false, false, false, false],
     winner: null,
+    turnDeadline: null,
+    turnDurationMs: TURN_TIMEOUT_MS,
+    turnAnimDelayMs: 400,
     rngStats: createEmptyRngStats(),
   };
+  scheduleTurnTimeout(room, 400);
 }
 
 function serializeRoom(room) {
@@ -201,8 +289,15 @@ function stepToTrackIndex(seatId, step) {
 
 function advanceTurn(match) {
   match.consecutiveSixes = 0;
-  const idx = match.activeSeats.indexOf(match.currentPlayer);
-  match.currentPlayer = match.activeSeats[(idx + 1) % match.activeSeats.length];
+  const total = match.activeSeats.length;
+  const startIdx = Math.max(0, match.activeSeats.indexOf(match.currentPlayer));
+  for (let step = 1; step <= total; step++) {
+    const candidate = match.activeSeats[(startIdx + step) % total];
+    if (!match.eliminated || !match.eliminated[candidate]) {
+      match.currentPlayer = candidate;
+      break;
+    }
+  }
   match.phase = 'AWAITING_ROLL';
   match.legalTokens = [];
 }
@@ -243,6 +338,7 @@ setInterval(() => {
   const cutoff = Date.now() - 8 * 3600 * 1000;
   for (const [code, room] of rooms.entries()) {
     if (room.clients.size === 0 && room.createdAt < cutoff) {
+      clearTurnTimeout(room);
       rooms.delete(code);
       continue;
     }
@@ -512,6 +608,9 @@ const server = http.createServer(async (req, res) => {
           }
         }
 
+        const animDelayMs = outcome === 'FORFEIT_THREE_SIXES' ? 1450 : (outcome === 'NO_MOVES' ? 1250 : 520);
+        scheduleTurnTimeout(room, animDelayMs);
+
         const payload = {
           pIdx,
           face,
@@ -521,6 +620,9 @@ const server = http.createServer(async (req, res) => {
           nextCurrentPlayer: m.currentPlayer,
           nextPhase: m.phase,
           consecutiveSixes: m.consecutiveSixes,
+          turnDeadline: m.turnDeadline,
+          turnDurationMs: TURN_TIMEOUT_MS,
+          animDelayMs,
         };
         broadcastSSE(room, 'GAME_ROLL', payload);
         return sendJson(res, 200, { ok: true, ...payload });
@@ -562,7 +664,7 @@ const server = http.createServer(async (req, res) => {
           const targetTrack = stepToTrackIndex(pIdx, nextStep);
           if (!SAFE_TRACK.has(targetTrack)) {
             for (const otherSeat of m.activeSeats) {
-              if (otherSeat === pIdx) continue;
+              if (otherSeat === pIdx || (m.eliminated && m.eliminated[otherSeat])) continue;
               for (let t = 0; t < 4; t++) {
                 const os = m.tokens[otherSeat][t];
                 if (os >= 0 && os <= 50 && stepToTrackIndex(otherSeat, os) === targetTrack) {
@@ -578,11 +680,14 @@ const server = http.createServer(async (req, res) => {
         }
 
         let winner = null;
+        let animDelayMs = 0;
         if (reachedHome && m.tokens[pIdx].every((s) => s === 56)) {
           winner = pIdx;
           m.winner = pIdx;
           m.phase = 'GAME_OVER';
           m.legalTokens = [];
+          m.turnDeadline = null;
+          clearTurnTimeout(room);
         } else {
           // Extra dice roll on: SIX, KILL (capture), or ENTER TO HOME
           const extraDiceRoll = (roll === 6) || (captured.length > 0) || reachedHome;
@@ -593,6 +698,10 @@ const server = http.createServer(async (req, res) => {
           } else {
             advanceTurn(m);
           }
+          const hopMs = curStep === -1 ? 260 : roll * 170;
+          const killMs = captured.length > 0 ? 5900 : 0;
+          animDelayMs = hopMs + killMs + 260;
+          scheduleTurnTimeout(room, animDelayMs);
         }
 
         const payload = {
@@ -609,6 +718,11 @@ const server = http.createServer(async (req, res) => {
           consecutiveSixes: m.consecutiveSixes,
           tokens: m.tokens,
           captures: m.captures,
+          timeouts: m.timeouts,
+          eliminated: m.eliminated,
+          turnDeadline: m.turnDeadline,
+          turnDurationMs: TURN_TIMEOUT_MS,
+          animDelayMs,
         };
         broadcastSSE(room, 'GAME_MOVE', payload);
         return sendJson(res, 200, { ok: true, ...payload });
