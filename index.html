@@ -2227,54 +2227,37 @@
     line-height: 1.1;
   }
 
-  /* Realistic Armored Warrior King Fighters directly ON the Ludo Board */
+  /* Realistic Armored Warrior King Fighters directly ON the Ludo Board (Pure GPU 60fps!) */
   .board-fighter {
     position: absolute;
     width: 31%;
     height: 33%;
-    transform: translate(-50%, -68%);
+    transform: translate3d(-50%, -68%, 0);
     display: flex;
     align-items: flex-end;
     justify-content: center;
     z-index: 5;
-    transition: left 0.2s cubic-bezier(0.22, 1, 0.36, 1), top 0.2s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
-    will-change: left, top, transform;
+    will-change: transform, opacity;
   }
 
   .board-fighter img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    filter: drop-shadow(0 0 12px var(--fighter-glow, rgba(255, 200, 60, 0.85))) drop-shadow(0 10px 10px rgba(0, 0, 0, 0.78));
-    transition: filter 0.14s ease;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.68));
+    will-change: filter;
   }
 
   .board-fighter.right img {
     transform: scaleX(-1);
   }
 
-  .board-fighter.erupting {
-    animation: boardFighterErupt 0.52s cubic-bezier(0.18, 1.2, 0.35, 1) forwards;
-  }
-
-  @keyframes boardFighterErupt {
-    0%   { transform: translate(-50%, -45%) scale(0.25); opacity: 0; filter: brightness(3); }
-    58%  { transform: translate(-50%, -74%) scale(1.1);  opacity: 1; filter: brightness(1.6); }
-    100% { transform: translate(-50%, -68%) scale(1);    opacity: 1; filter: brightness(1); }
-  }
-
   .board-fighter.hit-flash img {
-    filter: brightness(2.1) sepia(1) hue-rotate(-52deg) saturate(5) drop-shadow(0 0 20px #ff1e2b) drop-shadow(0 10px 10px rgba(0, 0, 0, 0.85)) !important;
+    filter: brightness(1.85) contrast(1.18) drop-shadow(0 0 10px #ff2430);
   }
 
   .board-fighter.rage-aura img {
-    filter: brightness(1.18) contrast(1.15) drop-shadow(0 0 22px #ff3038) drop-shadow(0 0 12px #ffd84d) drop-shadow(0 10px 10px rgba(0, 0, 0, 0.85)) !important;
-  }
-
-  .board-fighter.ko-fall {
-    transform: translate(-15%, -46%) rotate(54deg) scale(0.68) !important;
-    opacity: 0 !important;
-    transition: transform 0.58s cubic-bezier(0.32, 0, 0.67, 0), opacity 0.58s ease !important;
+    filter: brightness(1.18) contrast(1.12) drop-shadow(0 0 12px #ff3840);
   }
 
   /* 60FPS On-Board Canvas VFX */
@@ -2645,10 +2628,7 @@
   <button class="bar-btn" id="btn-home">Home</button>
   <button class="team-pill" id="btn-team-pill">—</button>
   <div class="bar-sep"></div>
-  <button class="bar-btn" id="btn-speed">1&times;</button>
   <button class="bar-btn active" id="btn-sound">Sound</button>
-  <div class="bar-sep"></div>
-  <button class="bar-btn fair-btn" id="btn-rng">RNG</button>
 </header>
 
 <!-- Main Arena (Dynamic Per-Player Perspective: Active Local Player Always at Bottom-Left) -->
@@ -2793,66 +2773,9 @@
   <section class="corner-slot slot-br" id="slot-br"></section>
 </main>
 
-<!-- RNG Fairness & Telemetry Modal -->
-<div class="modal-backdrop" id="modal-rng">
-  <div class="modal-card">
-    <div class="modal-head">
-      <h2 class="modal-title">Cryptographic Fair RNG Audit</h2>
-      <button class="modal-close" data-close="modal-rng">&times;</button>
-    </div>
-    <div class="rng-desc">
-      Every roll for every player (Human &amp; Bot) calls the exact same unbiased function using
-      <code>crypto.getRandomValues()</code> with rejection sampling
-      <code>maxValid = Math.floor(0x100000000 / 6) * 6 = 4,294,967,292</code>.
-      Zero modulo bias, zero rubber-banding, zero pity logic.
-    </div>
-    <div class="stat-grid">
-      <div class="stat-box">
-        <div class="stat-val" id="rng-total">0</div>
-        <div class="stat-lbl">Match Rolls</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-val" id="rng-chi">—</div>
-        <div class="stat-lbl">&chi;&sup2; (df = 5)</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-val" id="rng-pval">—</div>
-        <div class="stat-lbl">p-value</div>
-      </div>
-    </div>
-    <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-      <span class="verdict-pill" id="rng-verdict">Awaiting rolls</span>
-      <span style="font-size:11px; color:#9dc0f5;">Gold line = 16.67% expected | Rejected samples: <strong id="rng-rej">0</strong></span>
-    </div>
-    <div class="bar-chart" id="rng-bars"></div>
-    <table class="player-rng-table">
-      <thead>
-        <tr>
-          <th>Player</th>
-          <th>Role</th>
-          <th>Rolls</th>
-          <th>Avg Face</th>
-          <th>6s Rolled</th>
-        </tr>
-      </thead>
-      <tbody id="rng-player-rows"></tbody>
-    </table>
-    <button class="primary-btn" id="btn-run-10k">Run 10,000-Roll Uniformity Simulation Now</button>
-    <div class="sim-panel" id="sim-panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <strong style="font-size:13px; color:#9dffca;">10,000-Roll CSPRNG Audit</strong>
-        <span style="font-size:11px; color:#cfe2ff;" id="sim-meta"></span>
-      </div>
-      <div class="bar-chart" id="sim-bars" style="margin-bottom:6px;"></div>
-      <div style="font-size:11.5px; color:#d8ebff;" id="sim-summary"></div>
-    </div>
-  </div>
-</div>
-
 <!-- Kill Demo Floating Replay Bar (Only shown during Kill Demo) -->
 <div class="demo-controls" id="demo-controls">
   <button class="bar-btn active" id="btn-demo-replay">Replay</button>
-  <button class="bar-btn" id="btn-demo-slow">0.5&times;</button>
   <button class="bar-btn" id="btn-demo-color">Green</button>
   <button class="bar-btn" id="btn-demo-exit">Home</button>
 </div>
@@ -2864,7 +2787,6 @@
       <span class="server-pill offline" id="server-status-pill">...</span>
       <div style="display:flex; gap:6px; align-items:center;">
         <button class="secondary-btn" id="btn-kill-demo" style="padding:4px 10px; font-size:11px; border-color:rgba(255,110,115,0.75); color:#ffd2d4; background:rgba(239,35,42,0.28);">Kill Demo</button>
-        <button class="secondary-btn" id="btn-home-rng" style="padding:4px 10px; font-size:11px; border-color:rgba(82,230,138,0.55); color:#a8ffca;">RNG</button>
         <button class="secondary-btn" id="btn-resume-match" style="display:none; padding:4px 10px; font-size:11px;">Resume</button>
       </div>
     </div>
@@ -4989,7 +4911,7 @@
     });
   });
 
-  // 60FPS HTML5 Canvas VFX Engine — Scoped Directly ON the Ludo Board!
+  // Ultra-Smooth 60FPS GPU-Friendly Canvas VFX Engine (Zero shadowBlur lag, additive glow!)
   const DuelVFX = (() => {
     let rafId = null;
     let running = false;
@@ -4997,22 +4919,22 @@
     let slashes = [];
     let rings = [];
     let embers = [];
-    let hitStopUntil = 0;
     let boardW = 600;
     let boardH = 600;
+    let lastNow = 0;
 
     function resize(canvas) {
       const box = document.getElementById('board-inner');
       boardW = box ? box.clientWidth : 600;
       boardH = box ? box.clientHeight : 600;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.floor(boardW * dpr);
       canvas.height = Math.floor(boardH * dpr);
       const ctx = canvas.getContext('2d');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function start(cxPct = 50, cyPct = 50) {
+    function start(cxPct = 50, cyPct = 58) {
       stop();
       const canvas = document.getElementById('board-duel-canvas');
       if (!canvas) return;
@@ -5022,112 +4944,117 @@
       rings = [];
       const cxPx = (cxPct / 100) * boardW;
       const cyPx = (cyPct / 100) * boardH;
-      embers = Array.from({ length: 28 }, () => ({
-        x: cxPx + (Math.random() - 0.5) * boardW * 0.65,
-        y: cyPx + (Math.random() - 0.3) * boardH * 0.45,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: -(0.5 + Math.random() * 1.4),
-        r: 1 + Math.random() * 2,
-        alpha: 0.3 + Math.random() * 0.6,
+      embers = Array.from({ length: 18 }, () => ({
+        x: cxPx + (Math.random() - 0.5) * boardW * 0.6,
+        y: cyPx + (Math.random() - 0.3) * boardH * 0.4,
+        vx: (Math.random() - 0.5) * 38,
+        vy: -(32 + Math.random() * 64),
+        r: 1.2 + Math.random() * 1.8,
+        alpha: 0.35 + Math.random() * 0.5,
       }));
       running = true;
-      hitStopUntil = 0;
+      lastNow = performance.now();
 
       const ctx = canvas.getContext('2d');
       function loop(now) {
         if (!running) return;
+        const dt = Math.min(0.05, Math.max(0.004, (now - lastNow) / 1000));
+        lastNow = now;
+        const dt60 = dt * 60;
+
         ctx.clearRect(0, 0, boardW, boardH);
 
-        const frozen = now < hitStopUntil;
-
-        // Rising embers around the clash square on the board
+        // Rising warm battle embers
         for (const e of embers) {
-          if (!frozen) {
-            e.x += e.vx + Math.sin(now * 0.003 + e.y * 0.025) * 0.3;
-            e.y += e.vy;
-            if (e.y < boardH * 0.08) {
-              e.y = Math.min(boardH * 0.96, cyPx + boardH * 0.16);
-              e.x = cxPx + (Math.random() - 0.5) * boardW * 0.55;
-            }
+          e.x += e.vx * dt + Math.sin(now * 0.004 + e.y * 0.025) * 12 * dt;
+          e.y += e.vy * dt;
+          if (e.y < boardH * 0.16) {
+            e.y = Math.min(boardH * 0.95, cyPx + boardH * 0.14);
+            e.x = cxPx + (Math.random() - 0.5) * boardW * 0.52;
           }
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(255, ${135 + (e.r * 35) | 0}, 45, ${e.alpha})`;
-          ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.fillStyle = `rgba(255, 178, 64, ${e.alpha})`;
+          ctx.fillRect(e.x, e.y, e.r * 1.7, e.r * 1.7);
         }
 
-        // Shockwave rings
+        // Additive glow mode for shockwaves, blade arcs & sparks (zero shadowBlur cost!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+
+        // Shockwave rings (fast double-ring glow without shadowBlur)
         for (let i = rings.length - 1; i >= 0; i--) {
           const rg = rings[i];
-          if (!frozen) rg.t += 0.05;
+          rg.t += 3.1 * dt;
           if (rg.t >= 1) { rings.splice(i, 1); continue; }
           const r = rg.r0 + (rg.r1 - rg.r0) * (1 - Math.pow(1 - rg.t, 3));
-          ctx.save();
+          const a = (1 - rg.t);
           ctx.strokeStyle = rg.color;
-          ctx.globalAlpha = (1 - rg.t) * 0.78;
-          ctx.lineWidth = rg.lw * (1 - rg.t * 0.7);
-          ctx.shadowBlur = 14;
-          ctx.shadowColor = rg.color;
+          ctx.globalAlpha = a * 0.35;
+          ctx.lineWidth = rg.lw * 2.4 * (1 - rg.t * 0.6);
           ctx.beginPath();
           ctx.arc(rg.x, rg.y, r, 0, Math.PI * 2);
           ctx.stroke();
-          ctx.restore();
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.globalAlpha = a * 0.85;
+          ctx.lineWidth = Math.max(1.2, rg.lw * 0.65 * (1 - rg.t * 0.6));
+          ctx.beginPath();
+          ctx.arc(rg.x, rg.y, r, 0, Math.PI * 2);
+          ctx.stroke();
         }
 
-        // Dynamic razor blade slash arcs
+        // Dynamic razor blade slash arcs (double-pass additive glow!)
         for (let i = slashes.length - 1; i >= 0; i--) {
           const s = slashes[i];
-          if (!frozen) s.t += s.speed;
+          s.t += s.speed * dt60;
           if (s.t >= 1) { slashes.splice(i, 1); continue; }
-          const alpha = s.t < 0.25 ? s.t / 0.25 : 1 - (s.t - 0.25) / 0.75;
+          const alpha = s.t < 0.22 ? s.t / 0.22 : 1 - (s.t - 0.22) / 0.78;
           ctx.save();
           ctx.translate(s.x, s.y);
           ctx.rotate(s.angle);
-          ctx.globalAlpha = Math.max(0, alpha);
-          ctx.shadowBlur = s.fatal ? 28 : 16;
-          ctx.shadowColor = s.glow;
 
-          const len = s.len * (0.7 + s.t * 0.5);
+          const len = s.len * (0.72 + s.t * 0.48);
           const curve = s.curve;
-          const thick = s.thick * (1 - s.t * 0.55);
-          const grad = ctx.createLinearGradient(-len / 2, 0, len / 2, 0);
-          grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-          grad.addColorStop(0.25, s.edge);
-          grad.addColorStop(0.55, '#ffffff');
-          grad.addColorStop(0.85, s.edge);
-          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          const thick = s.thick * (1 - s.t * 0.52);
 
-          ctx.fillStyle = grad;
+          // Outer colored fiery energy aura
+          ctx.globalAlpha = Math.max(0, alpha * 0.52);
+          ctx.fillStyle = s.edge;
           ctx.beginPath();
-          ctx.moveTo(-len / 2, 0);
-          ctx.quadraticCurveTo(0, -curve - thick, len / 2, 0);
-          ctx.quadraticCurveTo(0, -curve + thick * 0.45, -len / 2, 0);
+          ctx.moveTo(-len * 0.54, 0);
+          ctx.quadraticCurveTo(0, -curve - thick * 1.65, len * 0.54, 0);
+          ctx.quadraticCurveTo(0, -curve + thick * 0.7, -len * 0.54, 0);
+          ctx.closePath();
+          ctx.fill();
+
+          // White-hot razor steel core
+          ctx.globalAlpha = Math.max(0, alpha * 0.95);
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(-len * 0.48, 0);
+          ctx.quadraticCurveTo(0, -curve - thick * 0.65, len * 0.48, 0);
+          ctx.quadraticCurveTo(0, -curve + thick * 0.22, -len * 0.48, 0);
           ctx.closePath();
           ctx.fill();
           ctx.restore();
         }
 
-        // Molten steel sparks & crimson hit drops
+        // Molten steel sparks & crimson energy bursts (frame-rate independent dt60!)
+        ctx.lineCap = 'round';
         for (let i = particles.length - 1; i >= 0; i--) {
           const p = particles[i];
-          if (!frozen) {
-            p.px = p.x;
-            p.py = p.y;
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += p.gravity;
-            p.vx *= 0.972;
-            p.life -= p.decay;
-          }
+          p.px = p.x;
+          p.py = p.y;
+          p.x += p.vx * dt60;
+          p.y += p.vy * dt60;
+          p.vy += p.gravity * dt60;
+          const drag = Math.pow(0.968, dt60);
+          p.vx *= drag;
+          p.life -= p.decay * dt60;
           if (p.life <= 0) { particles.splice(i, 1); continue; }
-          ctx.save();
           ctx.globalAlpha = Math.max(0, p.life);
           if (p.kind === 'spark') {
             ctx.strokeStyle = p.color;
             ctx.lineWidth = p.size;
-            ctx.lineCap = 'round';
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = p.color;
             ctx.beginPath();
             ctx.moveTo(p.px, p.py);
             ctx.lineTo(p.x, p.y);
@@ -5138,8 +5065,8 @@
             ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
             ctx.fill();
           }
-          ctx.restore();
         }
+        ctx.restore();
 
         rafId = requestAnimationFrame(loop);
       }
@@ -5163,18 +5090,14 @@
       return [(xPct / 100) * boardW, (yPct / 100) * boardH];
     }
 
-    function triggerHitStop(ms) {
-      hitStopUntil = performance.now() + ms;
-    }
-
-    function addSlashPct(xPct, yPct, { angle = -0.45, lenScale = 0.34, curveScale = 0.06, thick = 16, edge = '#ff3844', glow = '#ff1f2d', fatal = false } = {}) {
+    function addSlashPct(xPct, yPct, { angle = -0.45, lenScale = 0.34, curveScale = 0.06, thick = 16, edge = '#ff3844', fatal = false } = {}) {
       const [x, y] = pctToPx(xPct, yPct);
       slashes.push({
         x, y, angle,
         len: boardW * lenScale,
         curve: boardH * curveScale,
-        thick, edge, glow, fatal, t: 0,
-        speed: fatal ? 0.032 : 0.055,
+        thick, edge, fatal, t: 0,
+        speed: fatal ? 0.036 : 0.062,
       });
     }
 
@@ -5183,29 +5106,32 @@
       rings.push({ x, y, r0, r1: boardW * r1Scale, color, lw, t: 0 });
     }
 
-    function spawnSparksPct(xPct, yPct, count = 26, { crimson = true, speedMul = 1 } = {}) {
+    function spawnSparksPct(xPct, yPct, count = 24, { crimson = true, speedMul = 1 } = {}) {
       const [x, y] = pctToPx(xPct, yPct);
-      const scale = boardW / 650;
-      for (let i = 0; i < count; i++) {
+      const scale = boardW / 620;
+      const capped = Math.min(count, 42);
+      for (let i = 0; i < capped; i++) {
         const ang = Math.random() * Math.PI * 2;
-        const spd = (3.5 + Math.random() * 11) * speedMul * scale;
-        const isCrimson = crimson && Math.random() < 0.38;
+        const spd = (4.0 + Math.random() * 11.5) * speedMul * scale;
+        const isCrimson = crimson && Math.random() < 0.36;
         particles.push({
           kind: isCrimson ? 'blood' : 'spark',
           x, y, px: x, py: y,
           vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd - (isCrimson ? 2 : 3.4) * scale,
+          vy: Math.sin(ang) * spd - (isCrimson ? 2.2 : 3.6) * scale,
           gravity: (isCrimson ? 0.36 : 0.3) * scale,
-          size: isCrimson ? (2.2 + Math.random() * 3.5) : (1.5 + Math.random() * 2.2),
-          color: isCrimson ? (Math.random() < 0.5 ? '#d90b1c' : '#ff2e3b') : (Math.random() < 0.45 ? '#ffffff' : '#ffcf54'),
-          life: 0.72 + Math.random() * 0.42,
-          decay: 0.022 + Math.random() * 0.022,
+          size: isCrimson ? (2.4 + Math.random() * 3.2) : (1.7 + Math.random() * 2.2),
+          color: isCrimson ? (Math.random() < 0.5 ? '#ff1828' : '#ff4b3a') : (Math.random() < 0.45 ? '#ffffff' : '#ffd24d'),
+          life: 0.72 + Math.random() * 0.36,
+          decay: 0.026 + Math.random() * 0.022,
         });
       }
     }
 
-    return { start, stop, triggerHitStop, addSlashPct, addShockwavePct, spawnSparksPct };
+    return { start, stop, addSlashPct, addShockwavePct, spawnSparksPct, getBoardW: () => boardW };
   })();
+
+  let activeDuelRafId = null;
 
   function triggerBoardShake(heavy = false) {
     const frame = document.querySelector('.board-frame');
@@ -5216,6 +5142,10 @@
   }
 
   function clearDuelFX() {
+    if (activeDuelRafId) {
+      cancelAnimationFrame(activeDuelRafId);
+      activeDuelRafId = null;
+    }
     DuelVFX.stop();
     SoundFX.stopDuelAmbience();
     const layer = document.getElementById('board-duel-layer');
@@ -5226,17 +5156,13 @@
     document.querySelectorAll('.token').forEach((el) => { el.style.opacity = ''; });
   }
 
-  // ON-BOARD 5-SECOND AAA BRUTAL KING VS KING DUEL (LUDO BOARD ONLY!):
-  // Both pawns erupt right on top of the Ludo board into realistic armored Warrior Kings -> 5s brutal steel fight -> Attacker kills Defender per Ludo rules -> Morph back to pawns!
+  // SMOOTH 60FPS GPU-ACCELERATED 5-SECOND BRUTAL KING VS KING DUEL (ZERO LAG, ZERO FREEZE!)
   async function playKingKillAnimation(attackerIdx, attackerTokenIdx, victims, targetStep, gen) {
     clearDuelFX();
     const [cx, cy] = stepToBoardPercent(attackerIdx, attackerTokenIdx, targetStep);
-    // Clamp fight center inside board so BOTH Kings' faces, crowns & bodies ALWAYS stay well below the top HP HUD!
+    // Clamp fight center so BOTH Kings' faces, crowns & bodies ALWAYS stay cleanly below the top HP HUD!
     const fightX = Math.max(27, Math.min(73, cx));
     const fightY = Math.max(54, Math.min(86, cy));
-
-    const leftStandX = fightX - 13.5;
-    const rightStandX = fightX + 13.5;
 
     const mainVictim = victims[0];
     const defIdx = mainVictim.p;
@@ -5260,7 +5186,6 @@
     const drainD = document.getElementById('cinema-drain-d');
     const clockEl = document.getElementById('cinema-clock');
 
-    // Anchor vignette, ground glow, and callouts right on the clash square!
     layer.style.setProperty('--duel-x', `${fightX}%`);
     layer.style.setProperty('--duel-y', `${fightY}%`);
     ground.style.left = `${fightX}%`;
@@ -5275,27 +5200,21 @@
     gemD.style.background = defMeta.main;
     gemD.style.color = defMeta.main;
 
-    kingA.style.setProperty('--fighter-glow', atkMeta.glow);
-    kingD.style.setProperty('--fighter-glow', defMeta.glow);
-
-    // Match each Warrior King's armor suit & cape directly to their pawn color!
     const kingAImg = document.getElementById('board-king-a-img');
     const kingDImg = document.getElementById('board-king-d-img');
     if (kingAImg) kingAImg.src = `assets/king1_${atkMeta.colorKey}.png`;
     if (kingDImg) kingDImg.src = `assets/king2_${defMeta.colorKey}.png`;
 
-    // Hide the 2 small pawns while they have transformed into the huge armored Warrior Kings!
     if (atkPawnEl) atkPawnEl.style.opacity = '0';
     if (defPawnEl) defPawnEl.style.opacity = '0';
 
-    kingA.className = 'board-fighter left erupting';
-    kingD.className = 'board-fighter right erupting';
-    kingA.style.left = `${leftStandX}%`;
+    // Anchor BOTH fighters ONCE at fight center; ALL combat motion is pure GPU translate3d() at 60fps!
+    kingA.className = 'board-fighter left';
+    kingD.className = 'board-fighter right';
+    kingA.style.left = `${fightX}%`;
     kingA.style.top = `${fightY}%`;
-    kingD.style.left = `${rightStandX}%`;
+    kingD.style.left = `${fightX}%`;
     kingD.style.top = `${fightY}%`;
-    kingA.style.transform = '';
-    kingD.style.transform = '';
     kingA.style.opacity = '1';
     kingD.style.opacity = '1';
 
@@ -5330,196 +5249,315 @@
       div.className = `board-callout ${fatal ? 'fatal-title' : ''}`;
       div.textContent = text;
       layer.appendChild(div);
-      setTimeout(() => div.remove(), fatal ? 1200 : 760);
+      setTimeout(() => div.remove(), fatal ? 1100 : 680);
     }
 
-    function hitFlash(el, ms = 220) {
+    function hitFlash(el, ms = 190) {
       el.classList.add('hit-flash');
-      setTimeout(() => el.classList.remove('hit-flash'), ms / Game.speed);
+      setTimeout(() => el.classList.remove('hit-flash'), ms);
     }
 
-    const duelDurationMs = 5000 / Game.speed;
-    const startTs = performance.now();
-    const timerInterval = setInterval(() => {
-      if (gen !== Game.matchGen || !layer.classList.contains('active')) {
-        clearInterval(timerInterval);
-        return;
+    // Smooth easing & continuous combat impulse helpers
+    const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+    const smoothstep = (u) => { const c = clamp01(u); return c * c * (3 - 2 * c); };
+    // Smooth strike pulse: quick explosive surge from t0 -> tPeak, fluid follow-through settle tPeak -> tEnd
+    function strikePulse(t, t0, tPeak, tEnd) {
+      if (t <= t0 || t >= tEnd) return 0;
+      if (t < tPeak) {
+        const u = (t - t0) / (tPeak - t0);
+        return 1 - Math.pow(1 - u, 3); // explosive ease-out dash
       }
-      const rem = Math.max(0, (duelDurationMs - (performance.now() - startTs)) / 1000);
-      clockEl.textContent = rem > 0 ? rem.toFixed(1) : 'K.O.';
-    }, 60);
-
-    function abortCleanup() {
-      clearInterval(timerInterval);
-      clearDuelFX();
+      const u = (t - tPeak) / (tEnd - tPeak);
+      return 1 - smoothstep(u);        // smooth recovery
     }
 
-    // ---- STAGE 1 (0.0s - 0.65s): BOTH PAWNS TRANSFORM ON THE BOARD INTO ARMORED KINGS ----
-    DuelVFX.addShockwavePct(leftStandX, fightY - 4, { r1Scale: 0.2, color: atkMeta.main, lw: 5 });
-    DuelVFX.addShockwavePct(rightStandX, fightY - 4, { r1Scale: 0.2, color: defMeta.main, lw: 5 });
-    DuelVFX.spawnSparksPct(leftStandX, fightY - 4, 18, { crimson: false });
-    DuelVFX.spawnSparksPct(rightStandX, fightY - 4, 18, { crimson: false });
-    flashBoard(false);
-    showCallout('BRUTAL KING DUEL!');
+    // Exact timed combat cues (fired ONCE inside the unified 60fps loop — zero desync!)
+    const cues = [
+      {
+        at: 0.04, fired: false, fn: () => {
+          DuelVFX.addShockwavePct(fightX - 13, fightY - 6, { r1Scale: 0.22, color: atkMeta.main, lw: 5 });
+          DuelVFX.addShockwavePct(fightX + 13, fightY - 6, { r1Scale: 0.22, color: defMeta.main, lw: 5 });
+          DuelVFX.spawnSparksPct(fightX, fightY - 6, 26, { crimson: false });
+          flashBoard(false);
+          showCallout('KING DUEL!');
+        },
+      },
+      {
+        at: 0.62, fired: false, fn: () => {
+          hitFlash(kingD, 200);
+          DuelVFX.addSlashPct(fightX + 5, fightY - 7, { angle: -0.52, lenScale: 0.36, edge: '#ff3038' });
+          DuelVFX.spawnSparksPct(fightX + 5, fightY - 7, 26, { crimson: true });
+          DuelVFX.addShockwavePct(fightX + 5, fightY - 7, { r1Scale: 0.17, color: '#ff3b44' });
+          SoundFX.bladeClash(0);
+          triggerBoardShake(false);
+          setHP(100, 74);
+          showCallout('SLASH!');
+        },
+      },
+      {
+        at: 1.24, fired: false, fn: () => {
+          hitFlash(kingA, 200);
+          DuelVFX.addSlashPct(fightX - 5, fightY - 7, { angle: 2.58, lenScale: 0.36, edge: '#ff9040' });
+          DuelVFX.spawnSparksPct(fightX - 5, fightY - 7, 26, { crimson: true });
+          DuelVFX.addShockwavePct(fightX - 5, fightY - 7, { r1Scale: 0.17, color: '#ff9040' });
+          SoundFX.bladeClash(220);
+          triggerBoardShake(false);
+          setHP(70, 74);
+          showCallout('COUNTER!');
+        },
+      },
+      {
+        at: 1.84, fired: false, fn: () => {
+          DuelVFX.addSlashPct(fightX, fightY - 8, { angle: -0.65, lenScale: 0.38, edge: '#ffe055' });
+          DuelVFX.addSlashPct(fightX, fightY - 8, { angle: 0.65, lenScale: 0.38, edge: '#ff3038' });
+          DuelVFX.addShockwavePct(fightX, fightY - 8, { r1Scale: 0.24, color: '#ffe066', lw: 6 });
+          DuelVFX.spawnSparksPct(fightX, fightY - 8, 34, { crimson: false, speedMul: 1.25 });
+          flashBoard(false);
+          SoundFX.bladeLock();
+          triggerBoardShake(true);
+          setHP(56, 54);
+          showCallout('STEEL FURY!');
+        },
+      },
+      {
+        at: 2.12, fired: false, fn: () => {
+          DuelVFX.addSlashPct(fightX, fightY - 5, { angle: 0.55, lenScale: 0.32, edge: '#ffffff' });
+          DuelVFX.spawnSparksPct(fightX, fightY - 6, 26, { crimson: false, speedMul: 1.2 });
+          SoundFX.bladeClash(150);
+          setHP(50, 48);
+        },
+      },
+      {
+        at: 2.38, fired: false, fn: () => {
+          DuelVFX.addShockwavePct(fightX, fightY - 7, { r1Scale: 0.22, color: '#ffffff', lw: 5 });
+          DuelVFX.spawnSparksPct(fightX, fightY - 7, 28, { crimson: false, speedMul: 1.3 });
+          SoundFX.bladeLock();
+          triggerBoardShake(false);
+        },
+      },
+      {
+        at: 2.78, fired: false, fn: () => {
+          hitFlash(kingA, 220);
+          DuelVFX.addSlashPct(fightX - 6, fightY - 6, { angle: 2.35, lenScale: 0.4, thick: 20, edge: '#ff1f2d' });
+          DuelVFX.spawnSparksPct(fightX - 6, fightY - 6, 30, { crimson: true, speedMul: 1.15 });
+          DuelVFX.addShockwavePct(fightX - 6, fightY - 6, { r1Scale: 0.2, color: '#ff2430' });
+          SoundFX.bladeClash(-180);
+          triggerBoardShake(true);
+          setHP(26, 48);
+          showCallout('CRITICAL!');
+        },
+      },
+      {
+        at: 3.36, fired: false, fn: () => {
+          kingA.classList.add('rage-aura');
+          hitFlash(kingD, 180);
+          DuelVFX.addSlashPct(fightX + 5, fightY - 9, { angle: -0.45, lenScale: 0.38, thick: 19, edge: '#ffd84d' });
+          DuelVFX.spawnSparksPct(fightX + 5, fightY - 7, 28, { crimson: true, speedMul: 1.2 });
+          SoundFX.bladeClash(290);
+          triggerBoardShake(true);
+          setHP(26, 28);
+          showCallout('ROYAL RAGE!');
+        },
+      },
+      {
+        at: 3.74, fired: false, fn: () => {
+          hitFlash(kingD, 200);
+          DuelVFX.addSlashPct(fightX + 6, fightY - 4, { angle: 0.38, lenScale: 0.38, thick: 19, edge: '#ff2430' });
+          DuelVFX.spawnSparksPct(fightX + 6, fightY - 5, 30, { crimson: true, speedMul: 1.25 });
+          DuelVFX.addShockwavePct(fightX + 6, fightY - 5, { r1Scale: 0.2, color: '#ffd84d' });
+          SoundFX.bladeClash(360);
+          triggerBoardShake(true);
+          setHP(26, 12);
+        },
+      },
+      {
+        at: 4.22, fired: false, fn: () => {
+          flashBoard(true);
+          DuelVFX.addSlashPct(fightX + 6, fightY - 6, { angle: -0.72, lenScale: 0.5, curveScale: 0.08, thick: 26, edge: '#ff1f2d', fatal: true });
+          DuelVFX.addSlashPct(fightX + 6, fightY - 6, { angle: 0.72, lenScale: 0.5, curveScale: -0.08, thick: 26, edge: '#ffe055', fatal: true });
+          DuelVFX.addShockwavePct(fightX + 6, fightY - 6, { r1Scale: 0.36, color: '#ff1e2b', lw: 8 });
+          DuelVFX.addShockwavePct(fightX + 6, fightY - 6, { r1Scale: 0.24, color: '#ffe46e', lw: 5 });
+          DuelVFX.spawnSparksPct(fightX + 6, fightY - 6, 42, { crimson: true, speedMul: 1.45 });
+          SoundFX.knifeSlash();
+          SoundFX.captureBoom();
+          triggerBoardShake(true);
+          hitFlash(kingD, 280);
+          setHP(26, 0);
+          clockEl.textContent = 'K.O.';
+          showCallout(victims.length > 1 ? 'DOUBLE K.O.!' : 'EXECUTION!', true);
+        },
+      },
+    ];
 
-    await sleep(650);
-    if (gen !== Game.matchGen) return abortCleanup();
-    kingA.classList.remove('erupting');
-    kingD.classList.remove('erupting');
+    const DUEL_MS = 5000;
+    const startTs = performance.now();
 
-    // ---- STAGE 2 (0.65s - 4.20s): 6 BRUTAL KNIFE EXCHANGES RIGHT ON THE LUDO BOARD ----
-    // Exchange 1: Attacker dashes in -> SLASH! (Defender -> 72%)
-    kingA.style.left = `${fightX - 7.5}%`;
-    kingA.style.transform = 'translate(-50%, -68%) rotate(8deg) scale(1.06)';
-    kingD.style.transform = 'translate(-42%, -68%) rotate(7deg)';
-    hitFlash(kingD, 240);
-    DuelVFX.addSlashPct(fightX + 5, fightY - 6, { angle: -0.52, lenScale: 0.34, edge: '#ff3038' });
-    DuelVFX.spawnSparksPct(fightX + 5, fightY - 6, 28, { crimson: true });
-    DuelVFX.addShockwavePct(fightX + 5, fightY - 6, { r1Scale: 0.16, color: '#ff3b44' });
-    DuelVFX.triggerHitStop(55);
-    SoundFX.bladeClash(0);
-    triggerBoardShake(false);
-    setHP(100, 72);
-    showCallout('SLASH!');
-    await sleep(340);
-    if (gen !== Game.matchGen) return abortCleanup();
-    kingA.style.left = `${leftStandX}%`;
-    kingA.style.transform = '';
-    kingD.style.transform = '';
-    await sleep(260);
-    if (gen !== Game.matchGen) return abortCleanup();
+    await new Promise((resolve) => {
+      function frame(now) {
+        if (gen !== Game.matchGen || !layer.classList.contains('active')) {
+          activeDuelRafId = null;
+          clearDuelFX();
+          resolve();
+          return;
+        }
 
-    // Exchange 2: Defender lunges -> COUNTER! (Attacker -> 68%)
-    kingD.style.left = `${fightX + 7.5}%`;
-    kingD.style.transform = 'translate(-50%, -68%) rotate(-8deg) scale(1.06)';
-    kingA.style.transform = 'translate(-58%, -68%) rotate(-7deg)';
-    hitFlash(kingA, 240);
-    DuelVFX.addSlashPct(fightX - 5, fightY - 7, { angle: 2.58, lenScale: 0.34, edge: '#ff9040', glow: '#ff4800' });
-    DuelVFX.spawnSparksPct(fightX - 5, fightY - 7, 28, { crimson: true });
-    DuelVFX.triggerHitStop(55);
-    SoundFX.bladeClash(240);
-    triggerBoardShake(false);
-    setHP(68, 72);
-    showCallout('COUNTER!');
-    await sleep(340);
-    if (gen !== Game.matchGen) return abortCleanup();
-    kingD.style.left = `${rightStandX}%`;
-    kingD.style.transform = '';
-    kingA.style.transform = '';
-    await sleep(260);
-    if (gen !== Game.matchGen) return abortCleanup();
+        const elapsed = now - startTs;
+        const t = Math.min(5.0, elapsed / 1000);
+        const rem = Math.max(0, 5.0 - t);
+        if (t < 4.22) clockEl.textContent = rem.toFixed(1);
 
-    // Exchange 3: BRUTAL STEEL LOCK right over the clash tile! (52% vs 48%)
-    kingA.style.left = `${fightX - 8.5}%`;
-    kingD.style.left = `${fightX + 8.5}%`;
-    kingA.style.transform = 'translate(-50%, -68%) rotate(9deg) scale(1.07)';
-    kingD.style.transform = 'translate(-50%, -68%) rotate(-9deg) scale(1.07)';
-    DuelVFX.addSlashPct(fightX, fightY - 7, { angle: -0.65, lenScale: 0.36, edge: '#ffe055', glow: '#ff9900' });
-    DuelVFX.addSlashPct(fightX, fightY - 7, { angle: 0.65, lenScale: 0.36, edge: '#ffffff', glow: '#ff3038' });
-    DuelVFX.addShockwavePct(fightX, fightY - 7, { r1Scale: 0.24, color: '#ffe066', lw: 6 });
-    DuelVFX.spawnSparksPct(fightX, fightY - 7, 46, { crimson: false, speedMul: 1.25 });
-    DuelVFX.triggerHitStop(70);
-    flashBoard(false);
-    SoundFX.bladeLock();
-    triggerBoardShake(true);
-    setHP(52, 48);
-    showCallout('STEEL LOCK!');
-    await sleep(420);
-    if (gen !== Game.matchGen) return abortCleanup();
-    kingA.style.left = `${leftStandX - 2}%`;
-    kingD.style.left = `${rightStandX + 2}%`;
-    kingA.style.transform = 'translate(-50%, -68%) rotate(-6deg)';
-    kingD.style.transform = 'translate(-50%, -68%) rotate(6deg)';
-    await sleep(280);
-    if (gen !== Game.matchGen) return abortCleanup();
-    kingA.style.left = `${leftStandX}%`;
-    kingD.style.left = `${rightStandX}%`;
-    kingA.style.transform = '';
-    kingD.style.transform = '';
+        // Fire any combat impact cues reached this frame
+        for (const c of cues) {
+          if (!c.fired && t >= c.at) {
+            c.fired = true;
+            c.fn();
+          }
+        }
 
-    // Exchange 4: Defender brutal CRIT! (Attacker -> 26%)
-    kingD.style.left = `${fightX + 6.5}%`;
-    kingD.style.transform = 'translate(-50%, -73%) rotate(-10deg) scale(1.09)';
-    kingA.style.transform = 'translate(-60%, -68%) rotate(-12deg)';
-    hitFlash(kingA, 280);
-    DuelVFX.addSlashPct(fightX - 6, fightY - 5, { angle: 2.35, lenScale: 0.38, thick: 20, edge: '#ff1f2d' });
-    DuelVFX.spawnSparksPct(fightX - 6, fightY - 5, 36, { crimson: true, speedMul: 1.15 });
-    DuelVFX.addShockwavePct(fightX - 6, fightY - 5, { r1Scale: 0.19, color: '#ff2430' });
-    DuelVFX.triggerHitStop(65);
-    SoundFX.bladeClash(-180);
-    triggerBoardShake(true);
-    setHP(26, 48);
-    showCallout('CRITICAL HIT!');
-    await sleep(350);
-    if (gen !== Game.matchGen) return abortCleanup();
-    kingD.style.left = `${rightStandX}%`;
-    kingD.style.transform = '';
-    kingA.style.transform = '';
-    await sleep(250);
-    if (gen !== Game.matchGen) return abortCleanup();
+        const bw = DuelVFX.getBoardW() || 400;
+        const baseX = bw * 0.145; // crisp spacing between both fighters
 
-    // Exchange 5: Attacker ROYAL RAGE -> Double Slash! (Defender -> 16%)
-    kingA.classList.add('rage-aura');
-    kingA.style.left = `${fightX - 6.5}%`;
-    kingA.style.transform = 'translate(-50%, -74%) rotate(10deg) scale(1.1)';
-    kingD.style.transform = 'translate(-40%, -68%) rotate(11deg)';
-    hitFlash(kingD, 300);
-    DuelVFX.addSlashPct(fightX + 6, fightY - 9, { angle: -0.42, lenScale: 0.38, thick: 20, edge: '#ffd84d', glow: '#ff2e38' });
-    DuelVFX.addSlashPct(fightX + 7, fightY - 3, { angle: 0.35, lenScale: 0.36, thick: 18, edge: '#ff2430', glow: '#ff1020' });
-    DuelVFX.spawnSparksPct(fightX + 6, fightY - 6, 42, { crimson: true, speedMul: 1.25 });
-    DuelVFX.triggerHitStop(70);
-    SoundFX.bladeClash(320);
-    triggerBoardShake(true);
-    setHP(26, 16);
-    showCallout('ROYAL RAGE!');
-    await sleep(360);
-    if (gen !== Game.matchGen) return abortCleanup();
-    kingA.style.left = `${leftStandX}%`;
-    kingA.style.transform = '';
-    kingD.style.transform = '';
-    await sleep(240);
-    if (gen !== Game.matchGen) return abortCleanup();
+        // Continuous fluid combat breathing + footwork bob (NEVER frozen!)
+        const breathA = Math.sin(t * 7.8) * (bw * 0.008);
+        const breathD = Math.sin(t * 7.8 + 1.6) * (bw * 0.008);
+        const footA = Math.cos(t * 4.4) * (bw * 0.007);
+        const footD = -Math.cos(t * 4.4 + 0.9) * (bw * 0.007);
 
-    // Exchange 6: Final Parry Disarm
-    kingA.style.left = `${fightX - 8.5}%`;
-    kingD.style.left = `${fightX + 8.5}%`;
-    DuelVFX.addShockwavePct(fightX, fightY - 8, { r1Scale: 0.22, color: '#ffffff', lw: 5 });
-    DuelVFX.spawnSparksPct(fightX, fightY - 8, 34, { crimson: false, speedMul: 1.3 });
-    SoundFX.bladeLock();
-    triggerBoardShake(false);
-    await sleep(480);
-    if (gen !== Game.matchGen) return abortCleanup();
+        let ax = -baseX + footA;
+        let ay = breathA;
+        let aRot = Math.sin(t * 5.2) * 2.2;
+        let aScale = 1;
+        let aOp = 1;
 
-    // ---- STAGE 3 (4.2s - 5.0s): FATAL EXECUTION STRIKE RIGHT ON THE BOARD ----
-    kingA.style.left = `${fightX - 5}%`;
-    kingA.style.transform = 'translate(-50%, -75%) rotate(12deg) scale(1.13)';
-    flashBoard(true);
-    DuelVFX.addSlashPct(fightX + 6, fightY - 6, { angle: -0.72, lenScale: 0.48, curveScale: 0.08, thick: 26, edge: '#ff1f2d', glow: '#ff0018', fatal: true });
-    DuelVFX.addSlashPct(fightX + 6, fightY - 6, { angle: 0.72, lenScale: 0.48, curveScale: -0.08, thick: 26, edge: '#ffe055', glow: '#ff2430', fatal: true });
-    DuelVFX.addShockwavePct(fightX + 6, fightY - 6, { r1Scale: 0.34, color: '#ff1e2b', lw: 8 });
-    DuelVFX.addShockwavePct(fightX + 6, fightY - 6, { r1Scale: 0.22, color: '#ffe46e', lw: 5 });
-    DuelVFX.spawnSparksPct(fightX + 6, fightY - 6, 75, { crimson: true, speedMul: 1.4 });
-    DuelVFX.triggerHitStop(95);
-    SoundFX.knifeSlash();
-    SoundFX.captureBoom();
-    triggerBoardShake(true);
-    hitFlash(kingD, 340);
-    setHP(26, 0);
-    clockEl.textContent = 'K.O.';
-    showCallout(victims.length > 1 ? 'DOUBLE EXECUTION!' : 'FATAL EXECUTION!', true);
+        let dx = baseX + footD;
+        let dy = breathD;
+        let dRot = -Math.sin(t * 5.2 + 1.1) * 2.2;
+        let dScale = 1;
+        let dOp = 1;
 
-    await sleep(320);
-    if (gen !== Game.matchGen) return abortCleanup();
+        // 0.00 - 0.42s: Explosive erupt-from-pawn entrance
+        if (t < 0.42) {
+          const u = smoothstep(t / 0.42);
+          ax = -baseX * (0.25 + 0.75 * u);
+          dx = baseX * (0.25 + 0.75 * u);
+          ay = -bw * 0.06 * Math.sin(u * Math.PI);
+          dy = -bw * 0.06 * Math.sin(u * Math.PI);
+          aScale = 0.25 + 0.75 * u + 0.1 * Math.sin(u * Math.PI);
+          dScale = aScale;
+          aOp = Math.min(1, u * 1.8);
+          dOp = aOp;
+        }
 
-    // Defeated King collapses & dissolves
-    kingD.classList.add('ko-fall');
-    await sleep(540);
-    clearInterval(timerInterval);
-    if (gen !== Game.matchGen) return abortCleanup();
+        // Exchange 1 (0.42 - 1.05s): Attacker explosive dash SLASH -> Defender recoil
+        const p1 = strikePulse(t, 0.44, 0.62, 1.02);
+        if (p1 > 0) {
+          ax += baseX * 0.74 * p1;
+          ay -= bw * 0.025 * p1;
+          aRot += 13 * p1;
+          aScale += 0.07 * p1;
+        }
+        const r1 = strikePulse(t, 0.58, 0.72, 1.06);
+        if (r1 > 0) {
+          dx += bw * 0.048 * r1;
+          dRot += 12 * r1;
+        }
+
+        // Exchange 2 (1.05 - 1.70s): Defender leaping COUNTER -> Attacker recoil
+        const p2 = strikePulse(t, 1.06, 1.24, 1.66);
+        if (p2 > 0) {
+          dx -= baseX * 0.74 * p2;
+          dy -= bw * 0.028 * p2;
+          dRot -= 13 * p2;
+          dScale += 0.07 * p2;
+        }
+        const r2 = strikePulse(t, 1.20, 1.35, 1.68);
+        if (r2 > 0) {
+          ax -= bw * 0.048 * r2;
+          aRot -= 12 * r2;
+        }
+
+        // Exchange 3 (1.68 - 2.55s): High-speed continuous BLADE FURY CLASH!
+        const clash = strikePulse(t, 1.68, 1.92, 2.56);
+        if (clash > 0) {
+          const vib = Math.sin(t * 78) * (bw * 0.011) * clash;
+          ax += baseX * 0.54 * clash + vib;
+          dx -= baseX * 0.54 * clash - vib;
+          aRot += 10 * clash + Math.sin(t * 54) * 3 * clash;
+          dRot -= 10 * clash - Math.sin(t * 54) * 3 * clash;
+          aScale += 0.06 * clash;
+          dScale += 0.06 * clash;
+        }
+
+        // Exchange 4 (2.56 - 3.22s): Defender leaping CRITICAL -> Attacker staggered low
+        const p4 = strikePulse(t, 2.58, 2.78, 3.18);
+        if (p4 > 0) {
+          dx -= baseX * 0.8 * p4;
+          dy -= bw * 0.048 * p4;
+          dRot -= 15 * p4;
+          dScale += 0.1 * p4;
+        }
+        const r4 = strikePulse(t, 2.74, 2.92, 3.26);
+        if (r4 > 0) {
+          ax -= bw * 0.062 * r4;
+          ay += bw * 0.014 * r4;
+          aRot -= 15 * r4;
+        }
+
+        // Exchange 5 (3.20 - 4.05s): Attacker ROYAL RAGE relentless DOUBLE SLASH combo!
+        const p5a = strikePulse(t, 3.20, 3.36, 3.66);
+        const p5b = strikePulse(t, 3.58, 3.74, 4.04);
+        const p5 = Math.max(p5a, p5b);
+        if (p5 > 0) {
+          ax += baseX * (0.72 * p5a + 0.82 * p5b);
+          ay -= bw * (0.03 * p5a + 0.045 * p5b);
+          aRot += 14 * p5;
+          aScale += 0.1 * p5;
+        }
+        const r5 = Math.max(strikePulse(t, 3.33, 3.48, 3.74), strikePulse(t, 3.71, 3.88, 4.14));
+        if (r5 > 0) {
+          dx += bw * 0.065 * r5;
+          dRot += 15 * r5;
+        }
+
+        // Exchange 6 (4.04 - 5.00s): FATAL EXECUTION -> Defender blasted & tumbles K.O.!
+        const p6 = strikePulse(t, 4.04, 4.22, 4.82);
+        if (p6 > 0) {
+          ax += baseX * 0.9 * p6;
+          ay -= bw * 0.055 * p6;
+          aRot += 16 * p6;
+          aScale += 0.14 * p6;
+        }
+        if (t >= 4.22) {
+          const koU = clamp01((t - 4.22) / 0.66);
+          const koEase = koU * koU;
+          dx += bw * 0.14 * koEase;
+          dy += bw * 0.09 * koEase - bw * 0.03 * Math.sin(koU * Math.PI);
+          dRot += 68 * koEase;
+          dScale = Math.max(0.55, 1 - 0.36 * koEase);
+          dOp = Math.max(0, 1 - koU * 1.15);
+        }
+
+        kingA.style.transform = `translate3d(calc(-50% + ${ax.toFixed(1)}px), calc(-68% + ${ay.toFixed(1)}px), 0) rotate(${aRot.toFixed(1)}deg) scale(${aScale.toFixed(3)})`;
+        kingA.style.opacity = aOp.toFixed(3);
+        kingD.style.transform = `translate3d(calc(-50% + ${dx.toFixed(1)}px), calc(-68% + ${dy.toFixed(1)}px), 0) rotate(${dRot.toFixed(1)}deg) scale(${dScale.toFixed(3)})`;
+        kingD.style.opacity = dOp.toFixed(3);
+
+        if (elapsed >= DUEL_MS) {
+          activeDuelRafId = null;
+          resolve();
+          return;
+        }
+        activeDuelRafId = requestAnimationFrame(frame);
+      }
+      activeDuelRafId = requestAnimationFrame(frame);
+    });
+
+    if (gen !== Game.matchGen) return;
 
     // ---- STAGE 4: BACK TO LUDO PAWNS ON THE EXACT SQUARE ----
     layer.classList.remove('active');
     DuelVFX.stop();
+    SoundFX.stopDuelAmbience();
     if (atkPawnEl) atkPawnEl.style.opacity = '';
     if (defPawnEl) defPawnEl.style.opacity = '';
 
@@ -5544,7 +5582,7 @@
       SoundFX.armorSettle();
     }
 
-    await sleep(420);
+    await sleep(360);
     if (gen !== Game.matchGen) return;
 
     victims.forEach(({ p, t }) => {
@@ -6352,9 +6390,7 @@
   }
 
   function refreshRNGModalIfOpen() {
-    if (document.getElementById('modal-rng').classList.contains('open')) {
-      renderRNGModal();
-    }
+    // RNG modal removed per user preference
   }
 
   /* =========================================================================
@@ -6757,14 +6793,8 @@
     if (Game.hasStartedMatch) hideHomeScreen();
   });
 
-  document.getElementById('btn-home-rng').addEventListener('click', () => {
-    renderRNGModal();
-    openModal('modal-rng');
-  });
-
-  // Live Cinematic Kill Animation Demo (Pawn -> Human King with Knife -> Slash Kill -> Back to Pawn!)
+  // Live Cinematic Kill Animation Demo
   let demoKingSeat = 2; // 2=Green, 0=Blue, 1=Red, 3=Yellow
-  let demoSlowMo = false;
 
   async function runKillDemo() {
     TurnTimer.stop(true);
@@ -6776,7 +6806,7 @@
     const enemySeat = (demoKingSeat + 2) % 4; // diagonally opposite enemy
     Game.activeSeats = [0, 1, 2, 3].filter((s) => s === demoKingSeat || s === enemySeat);
     Game.players = createInitialPlayers();
-    Game.speed = demoSlowMo ? 0.5 : 1;
+    Game.speed = 1;
 
     // Place attacker at step 1, enemy 3 steps ahead on the exact same non-safe track square!
     const targetTrack = stepToTrackIndex(demoKingSeat, 4);
@@ -6801,7 +6831,6 @@
     pill.textContent = 'Demo';
 
     document.getElementById('btn-demo-color').textContent = PLAYERS_META[demoKingSeat].colorName;
-    document.getElementById('btn-demo-slow').classList.toggle('active', demoSlowMo);
     document.getElementById('demo-controls').classList.add('visible');
     const dock = document.getElementById('shared-dice-dock');
     if (dock) dock.style.visibility = 'hidden';
@@ -6842,10 +6871,6 @@
 
   document.getElementById('btn-kill-demo').addEventListener('click', runKillDemo);
   document.getElementById('btn-demo-replay').addEventListener('click', runKillDemo);
-  document.getElementById('btn-demo-slow').addEventListener('click', () => {
-    demoSlowMo = !demoSlowMo;
-    runKillDemo();
-  });
   document.getElementById('btn-demo-color').addEventListener('click', () => {
     const order = [2, 0, 1, 3];
     demoKingSeat = order[(order.indexOf(demoKingSeat) + 1) % 4];
@@ -6853,7 +6878,6 @@
   });
   document.getElementById('btn-demo-exit').addEventListener('click', () => {
     Game.matchGen++;
-    demoSlowMo = false;
     Game.speed = 1;
     showHomeScreen('main');
   });
@@ -7090,41 +7114,15 @@
     await RoomManager.startMatch();
   });
 
-  // Top Bar Controls
+  // Top Bar Controls (Permanently 1× speed; no RNG modal)
   document.getElementById('btn-home').addEventListener('click', () => {
     showHomeScreen('main');
-  });
-
-  document.getElementById('btn-speed').addEventListener('click', (e) => {
-    Game.speed = Game.speed === 1 ? 2 : 1;
-    e.currentTarget.textContent = `${Game.speed}×`;
-    e.currentTarget.classList.toggle('active', Game.speed === 2);
   });
 
   document.getElementById('btn-sound').addEventListener('click', (e) => {
     SoundFX.enabled = !SoundFX.enabled;
     e.currentTarget.textContent = SoundFX.enabled ? 'Sound' : 'Muted';
     e.currentTarget.classList.toggle('active', SoundFX.enabled);
-  });
-
-  document.getElementById('btn-rng').addEventListener('click', () => {
-    renderRNGModal();
-    openModal('modal-rng');
-  });
-
-  document.getElementById('btn-run-10k').addEventListener('click', () => {
-    const res = FairRNG.runSimulation(10000);
-    const panel = document.getElementById('sim-panel');
-    panel.classList.add('visible');
-    document.getElementById('sim-meta').textContent =
-      `${res.elapsedMs.toFixed(1)} ms | Rejected: ${res.rejected}`;
-    renderFaceBars('sim-bars', res.counts, res.n);
-    document.getElementById('sim-summary').innerHTML =
-      `<strong>&chi;&sup2; = ${res.chi2.toFixed(2)}</strong> (df = 5), ` +
-      `<strong>p = ${res.pValue.toFixed(3)}</strong>, ` +
-      `max deviation from 16.67%: <strong>&plusmn;${res.maxDev.toFixed(2)}%</strong> ` +
-      `&mdash; ${res.pValue >= 0.05 ? '<span style="color:#8dffbe">Passed uniformity check!</span>' : 'Rare tail draw (re-run to confirm).'}`;
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
 
   document.getElementById('btn-rematch').addEventListener('click', async () => {
@@ -7151,7 +7149,6 @@
   // Keyboard shortcuts
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      closeModal('modal-rng');
       if (Game.hasStartedMatch && !document.getElementById('home-screen').classList.contains('hidden')) {
         hideHomeScreen();
       }
